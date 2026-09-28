@@ -75,7 +75,17 @@ h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,3.2vw,38px);li
 .phasehead p{margin:0;color:var(--ink2);flex-basis:100%}
 .nav{margin-left:auto;display:flex;gap:6px}
 .nav button{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:14px}
+.nav{align-items:center}
 .nav button:disabled{opacity:.4;cursor:default}
+.nav .pos{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:64px;text-align:center}
+.nav #nextBtn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.nav #nextBtn:disabled{background:var(--paper);color:var(--ink);border-color:var(--line)}
+.nav #fsBtn{font-size:13px}
+.bul{width:10px;height:10px;border-radius:50%;background:var(--accent);margin:8px 0 0 8px}
+.stage:fullscreen{background:var(--bg);padding:16px 20px;overflow:auto;grid-template-columns:minmax(0,2.4fr) minmax(300px,1fr);align-content:start}
+.stage.fs{position:fixed;inset:0;z-index:50;background:var(--bg);padding:16px 20px;overflow:auto;grid-template-columns:minmax(0,2.4fr) minmax(300px,1fr);align-content:start}
+.stage:fullscreen .tasks,.stage.fs .tasks{position:sticky;top:0;max-height:calc(100vh - 32px);overflow:auto}
+@media (max-width:1080px){.stage:fullscreen,.stage.fs{grid-template-columns:minmax(0,1fr)}.stage:fullscreen .tasks,.stage.fs .tasks{position:static;max-height:none}}
 .maps{display:flex;flex-direction:column;gap:12px;min-width:0}
 figure{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 10px 8px;min-width:0}
 figcaption{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:0 4px 6px}
@@ -214,15 +224,17 @@ svg text{font-family:var(--f-body)}
       <span class="time" id="phTime"></span>
       <h2 id="phTitle"></h2>
       <div class="nav">
-        <button type="button" id="prevBtn" aria-label="이전 시간대">← 이전</button>
-        <button type="button" id="nextBtn" aria-label="다음 시간대">다음 →</button>
+        <button type="button" id="fsBtn">전체화면</button>
+        <button type="button" id="prevBtn" aria-label="이전">← 이전</button>
+        <span class="pos" id="posTxt" aria-live="polite"></span>
+        <button type="button" id="nextBtn" aria-label="다음">다음 →</button>
       </div>
       <p id="phSub"></p>
     </div>
 
     <div class="maps">
       <figure>
-        <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">전체</button><span class="zl" id="zl_site">100%</span></span></figcaption>
+        <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_site">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="site" viewBox="-205 668 1030 402" role="img" aria-label="1층 배치도와 학교 주변"></svg></div>
         <div class="legend">
           <span><i style="background:var(--r-cls)"></i>학급 교실</span>
@@ -235,7 +247,7 @@ svg text{font-family:var(--f-body)}
         </div>
       </figure>
       <figure id="upperFig" hidden>
-        <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span class="zoomctl" data-map="upper"><span class="zh">휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">전체</button><span class="zl" id="zl_upper">100%</span></span></figcaption>
+        <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span class="zoomctl" data-map="upper"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_upper">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="upper" role="img" aria-label="2층부터 4층까지 교실 배치"></svg></div>
       </figure>
     </div>
@@ -302,7 +314,7 @@ const PHASES = [
     {id:'b6', time:'13:30 – 14:10', task:'덧신 배치 및 정리 봉투 세팅', loc:'piloti', slots:[['b6a','','정유선'],['b6b','','정영미']]},
     {id:'b7', time:'13:30 – 13:50', task:'수업 준비', where:'각 수업 교실 (다음 단계 2~4층 도면 참고)', loc:null, slots:[['b7a','','수업자']]},
    ]},
- { id:'p3', time:'14:00 – 14:40', title:'수업 공개', step:'수업 공개',
+ { id:'p3', time:'14:00 – 14:40', title:'수업 공개', step:'수업 공개', noNum:true,
    sub:'전 학급 학교자율시간 수업 공개(10학급). 도움반 학생은 같은 시간에 특별 프로그램을 합니다.',
    upper:true,
    items:[
@@ -365,10 +377,11 @@ const PHASES = [
 /* ---------- 이동 동선 ---------- */
 const ROUTES = {
   entry:{note:'정문 → 표지석 입구 → 필로티 → 양쪽 현관', paths:[
-    'M 30 951 L 128 951 L 205 906 L 255 850', 'M 255 850 L 232 832', 'M 255 850 L 280 832']},
-  toHall:{note:'계단 → 현관 → 중동관 (예시 동선)', paths:[
-    'M 240 812 L 255 850 L 205 906 L 150 950 L 130 984',
-    'M 489 812 L 443 850 L 443 932 L 200 962 L 142 984']},
+    '!M 30 951 L 128 951 L 205 906 L 255 850', 'M 255 850 L 232 832', 'M 255 850 L 280 832']},
+  toHall:{note:'본관·후관 계단 → 필로티(표지석 쪽) 현관에서 합류 → 중동관', paths:[
+    '!M 240 812 L 255 850',
+    '!M 489 812 L 489 833 L 292 833 L 255 850',
+    'M 255 850 L 205 906 L 150 950 L 130 984']},
 };
 
 /* ---------- 상태 ---------- */
@@ -448,16 +461,17 @@ function siteBase(){
 function tagSVG(o){
   const {x,y,tx,ty,num,cap,nm,cls,id} = o;
   const capW = tw(cap,11), nmW = tw(nm,15);
-  const w = 34 + Math.max(capW,nmW) + 10, h = 38;
+  const tx0 = num==null ? 12 : 31;                 // 번호 배지가 없으면 글자를 왼쪽으로
+  const w = tx0 + 3 + Math.max(capW,nmW) + 10, h = 38;
   const lx = tx - w/2, ly = ty - h/2;
-  let s = `<g class="tag ${cls}" data-item="${id}" tabindex="0" role="button" aria-label="${esc(num+'. '+cap+' '+nm)}">`;
+  let s = `<g class="tag ${cls}" data-item="${id}" tabindex="0" role="button" aria-label="${esc((num==null?'':num+'. ')+cap+' '+nm)}">`;
   if(o.sel) s += `<circle class="pulse" cx="${x}" cy="${y}" r="5"/>`;
   if(Math.hypot(tx-x,ty-y) > 6) s += `<line class="lead" x1="${x}" y1="${y}" x2="${tx}" y2="${ty}"/>`;
   s += `<circle class="anchor" cx="${x}" cy="${y}" r="4"/>`;
   s += `<rect class="pill" x="${lx}" y="${ly}" width="${w}" height="${h}" rx="9"/>`;
-  s += `<circle class="badge" cx="${lx+15}" cy="${ty}" r="10"/><text class="bnum" x="${lx+15}" y="${ty+.5}">${esc(num)}</text>`;
-  s += `<text class="cap" x="${lx+31}" y="${ty-6}">${esc(cap)}</text>`;
-  s += `<text class="nm" x="${lx+31}" y="${ty+12}">${esc(nm)}</text>`;
+  if(num!=null) s += `<circle class="badge" cx="${lx+15}" cy="${ty}" r="10"/><text class="bnum" x="${lx+15}" y="${ty+.5}">${esc(num)}</text>`;
+  s += `<text class="cap" x="${lx+tx0}" y="${ty-6}">${esc(cap)}</text>`;
+  s += `<text class="nm" x="${lx+tx0}" y="${ty+12}">${esc(nm)}</text>`;
   return s + `</g>`;
 }
 
@@ -466,8 +480,9 @@ function phaseItems(p){
   let n = 0;
   return p.items.map(it=>{
     if(it.group) return it;
-    if(it.ref){ const src = ITEM[it.ref]; return {...src, cont:true, num:++n, srcId:src.id}; }
-    return {...it, num:++n, srcId:it.id};
+    const num = p.noNum ? null : ++n;
+    if(it.ref){ const src = ITEM[it.ref]; return {...src, cont:true, num, srcId:src.id}; }
+    return {...it, num, srcId:it.id};
   });
 }
 
@@ -475,7 +490,10 @@ function renderSite(){
   const p = PHASES[phaseIdx];
   const items = phaseItems(p).filter(it=>!it.group && it.loc && it.loc!=='U');
   let s = siteBase();
-  (p.routes||[]).forEach(k=>ROUTES[k].paths.forEach(d=>{ s += `<path class="route" d="${d}" marker-end="url(#arr)"/>`; }));
+  (p.routes||[]).forEach(k=>ROUTES[k].paths.forEach(d=>{
+    const noArrow = d[0]==='!';                     // '!' = 합류 지점까지 가는 선 (화살표 없음)
+    s += `<path class="route" d="${noArrow?d.slice(1):d}"${noArrow?'':' marker-end="url(#arr)"'}/>`;
+  }));
   s = `<defs><marker id="arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--route)"/></marker></defs>` + s;
   // 같은 장소는 겹쳐 쌓기
   const byLoc = {};
@@ -577,7 +595,9 @@ function renderTasks(){
     const numCls = it.cont ? 'cont' : (it.loc ? '' : 'none');
     const cls = [sel===it.srcId?'sel':'', itemHasPerson(it)?'me':''].join(' ');
     h += `<div class="item ${cls}" data-item="${it.srcId}">`;
-    h += `<button type="button" class="num ${numCls} ${sel===it.srcId?'sel':''}" data-sel="${it.srcId}" aria-pressed="${sel===it.srcId}" title="${it.loc?'누르면 배치도에 진하게 표시':'배치도 표시 없음'}">${it.num}</button><div>`;
+    h += it.num==null
+      ? `<span class="bul" aria-hidden="true"></span><div>`
+      : `<button type="button" class="num ${numCls} ${sel===it.srcId?'sel':''}" data-sel="${it.srcId}" aria-pressed="${sel===it.srcId}" title="${it.loc?'누르면 배치도에 진하게 표시':'배치도 표시 없음'}">${it.num}</button><div>`;
     if(it.time) h += `<div class="itime">${esc(it.time)}${it.cont?' · 앞 단계에서 계속':''}</div>`;
     h += `<div class="itask">${esc(it.task)}</div>`;
     if(it.detail) h += `<div class="idetail">${esc(it.detail)}</div>`;
@@ -626,8 +646,7 @@ function renderHead(){
   document.getElementById('phTime').textContent = p.time;
   document.getElementById('phTitle').textContent = p.title;
   document.getElementById('phSub').textContent = p.sub;
-  document.getElementById('prevBtn').disabled = phaseIdx===0;
-  document.getElementById('nextBtn').disabled = phaseIdx===PHASES.length-1;
+  updateNav();
 }
 function renderMaps(){ renderSite(); renderUpper(); }
 function renderAll(){ renderSteps(); renderHead(); renderMaps(); renderTasks(); renderPeople(); }
@@ -649,17 +668,19 @@ document.addEventListener('click', e=>{
   const pp = e.target.closest('[data-person]');
   if(pp){ person = pp.dataset.person===person ? null : pp.dataset.person; renderPeople(); renderMaps(); renderTasks(); return; }
   if(e.target.id==='clearPerson'){ person=null; renderPeople(); renderMaps(); renderTasks(); return; }
-  if(e.target.id==='prevBtn') return go(phaseIdx-1);
-  if(e.target.id==='nextBtn') return go(phaseIdx+1);
+  if(e.target.id==='prevBtn') return stepPrev();
+  if(e.target.id==='nextBtn') return stepNext();
+  if(e.target.id==='fsBtn') return isFs() ? exitFs() : enterFs();
   const t = e.target.closest('svg [data-item]');
   if(t){ select(sel===t.dataset.item?null:t.dataset.item, false); document.querySelector(`.item[data-item="${t.dataset.item}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  else if(e.target.closest('svg.map') && !isFs()) enterFs();     // 배치도 빈 곳을 누르면 전체화면
 });
 document.addEventListener('keydown', e=>{
   if(e.target.matches('input')) { if(e.key==='Enter') e.target.blur(); return; }
-  if(e.key==='ArrowRight') go(phaseIdx+1);
-  if(e.key==='ArrowLeft') go(phaseIdx-1);
+  if(e.key==='ArrowRight' || e.key==='PageDown'){ e.preventDefault(); stepNext(); }
+  if(e.key==='ArrowLeft' || e.key==='PageUp'){ e.preventDefault(); stepPrev(); }
   if((e.key==='Enter'||e.key===' ') && e.target.matches('svg [data-item]')){ e.preventDefault(); select(e.target.dataset.item, false); }
-  if(e.key==='Escape' && sel) select(null);
+  if(e.key==='Escape'){ if(stage.classList.contains('fs')) exitFs(); else if(sel) select(null); }
 });
 function select(id, reveal){
   sel = id;
@@ -667,7 +688,61 @@ function select(id, reveal){
   document.querySelectorAll('.item').forEach(el=>el.classList.toggle('sel', el.dataset.item===id));
   document.querySelectorAll('.num[data-sel]').forEach(b=>{ const on = b.dataset.sel===id; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
   if(id && reveal) revealOnMap(id);
+  updateNav();
 }
+
+/* 단계 안에서 번호 차례로 → 마지막 번호 다음은 다음 단계 */
+const stepIds = p => p.noNum ? [] : phaseItems(p).filter(it=>!it.group).map(it=>it.srcId);
+function showItem(id){
+  select(id, true);
+  if(id) document.querySelector(`.item[data-item="${id}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+function stepNext(){
+  const ids = stepIds(PHASES[phaseIdx]);
+  const i = sel ? ids.indexOf(sel) : -1;
+  if(i < ids.length-1) return showItem(ids[i+1]);
+  if(phaseIdx < PHASES.length-1) go(phaseIdx+1);
+}
+function stepPrev(){
+  const ids = stepIds(PHASES[phaseIdx]);
+  const i = sel ? ids.indexOf(sel) : -1;
+  if(i > 0) return showItem(ids[i-1]);
+  if(i === 0) return select(null);
+  if(phaseIdx > 0){
+    go(phaseIdx-1);
+    const prev = stepIds(PHASES[phaseIdx]);
+    if(prev.length) showItem(prev[prev.length-1]);
+  }
+}
+function updateNav(){
+  const ids = stepIds(PHASES[phaseIdx]);
+  const i = sel ? ids.indexOf(sel) : -1;
+  document.getElementById('prevBtn').disabled = phaseIdx===0 && i<0;
+  document.getElementById('nextBtn').disabled = phaseIdx===PHASES.length-1 && i===ids.length-1;
+  const last = i===ids.length-1 && phaseIdx<PHASES.length-1;
+  document.getElementById('nextBtn').textContent = last ? '다음 단계 →' : '다음 →';
+  document.getElementById('posTxt').textContent = !ids.length ? `${phaseIdx+1}단계 전체` : i<0 ? `전체 보기 · ${ids.length}개` : `${i+1} / ${ids.length}`;
+}
+
+/* ---------- 전체화면 ---------- */
+const stage = document.querySelector('.stage');
+const isFs = () => document.fullscreenElement===stage || stage.classList.contains('fs');
+function enterFs(){
+  if(isFs()) return;
+  const fallback = ()=>{ stage.classList.add('fs'); fsChanged(); };
+  try{
+    const r = stage.requestFullscreen ? stage.requestFullscreen() : null;
+    if(r && r.then) r.then(fsChanged, fallback); else if(!r) fallback();
+  }catch(err){ fallback(); }
+}
+function exitFs(){
+  if(document.fullscreenElement){ document.exitFullscreen().catch(()=>{}); }
+  stage.classList.remove('fs'); fsChanged();
+}
+function fsChanged(){
+  document.getElementById('fsBtn').textContent = isFs() ? '전체화면 닫기' : '전체화면';
+}
+document.addEventListener('fullscreenchange', fsChanged);
 
 /* ---------- 확대 · 축소 · 이동 ---------- */
 const VIEW = { site:{base:[-205,668,1030,402], v:null}, upper:{base:null, v:null} };
