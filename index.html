@@ -80,8 +80,16 @@ h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,3.2vw,38px);li
 figure{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 10px 8px;min-width:0}
 figcaption{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:0 4px 6px}
 figcaption b{color:var(--ink);font-weight:600}
-.svgbox{overflow-x:auto}
-svg.map{display:block;width:100%;height:auto;min-width:560px}
+.svgbox{overflow:hidden;border-radius:8px}
+svg.map{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+svg.map.dragging{cursor:grabbing}
+svg.map.dragging .tag{cursor:grabbing}
+.zoomctl{display:inline-flex;align-items:center;gap:4px}
+.zoomctl button{min-width:30px;height:28px;padding:0 8px;border:1px solid var(--line);border-radius:7px;background:var(--bg);font-size:15px;font-weight:600;color:var(--ink)}
+.zoomctl button:hover{border-color:var(--accent)}
+.zoomctl .zl{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+.zoomctl .zh{font-size:12px;color:var(--muted);margin-right:6px}
+svg.map{display:block;width:100%;height:auto}
 svg text{font-family:var(--f-body)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);padding:6px 4px 0}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--r-stroke)}
@@ -104,7 +112,16 @@ svg text{font-family:var(--f-body)}
 .tag .lead{stroke:var(--accent);stroke-width:1.4}
 .tag .anchor{fill:var(--accent);stroke:var(--tag-bg);stroke-width:1.5}
 .tag.cont .pill{stroke-dasharray:4 3}
-.tag.hl .pill,.room.hl{fill:var(--mark-soft);stroke:var(--mark);stroke-width:3}
+.tag.sel .pill{fill:var(--mark);stroke:#1B2723;stroke-width:3}
+.tag.sel .nm,.tag.sel .cap{fill:#1B2723}
+.tag.sel .badge{fill:#1B2723}
+.tag.sel .bnum{fill:#F3C546}
+.tag.sel .lead{stroke:#1B2723;stroke-width:2.5}
+.tag.sel .anchor{fill:#1B2723;stroke:var(--mark);stroke-width:2}
+.pulse{fill:none;stroke:var(--mark);stroke-width:3}
+@media (prefers-reduced-motion:no-preference){.pulse{animation:pulse 1.4s ease-out infinite}}
+@keyframes pulse{from{r:5;opacity:1}to{r:26;opacity:0}}
+.room.on.sel{fill:var(--mark);stroke:#1B2723;stroke-width:3}
 .tag.dimmed{opacity:.25}
 .tag.me .pill{fill:var(--mark);stroke:var(--ink)}
 .tag.me .nm,.tag.me .cap{fill:#1B2723}
@@ -121,11 +138,13 @@ svg text{font-family:var(--f-body)}
 .tasks .gnote{margin:0 0 4px;font-size:13px;color:var(--ink2);background:var(--bg);border-radius:8px;padding:6px 10px}
 .item{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 10px;padding:9px 6px;border-radius:10px;border-top:1px solid var(--line)}
 .item:first-of-type{border-top:none}
-.item.hl{background:var(--mark-soft)}
+.item.sel{background:var(--mark-soft);box-shadow:inset 4px 0 0 var(--mark)}
 .item.me{background:var(--mark-soft);box-shadow:inset 3px 0 0 var(--mark)}
-.num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.num{border:none;padding:0;cursor:pointer;transition:transform .12s;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
 .num.none{background:var(--line);color:var(--ink2)}
 .num.cont{background:none;border:1.5px dashed var(--accent);color:var(--accent)}
+.num:hover{transform:scale(1.15)}
+.num.sel{background:var(--mark);color:#1B2723;box-shadow:0 0 0 3px #1B2723;transform:scale(1.15)}
 .itime{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:500}
 .itask{font-weight:600;line-height:1.35}
 .idetail{font-size:13px;color:var(--ink2)}
@@ -203,7 +222,7 @@ svg text{font-family:var(--f-body)}
 
     <div class="maps">
       <figure>
-        <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span>번호를 누르면 오른쪽 목록과 함께 표시됩니다</span></figcaption>
+        <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">전체</button><span class="zl" id="zl_site">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="site" viewBox="-205 668 1030 402" role="img" aria-label="1층 배치도와 학교 주변"></svg></div>
         <div class="legend">
           <span><i style="background:var(--r-cls)"></i>학급 교실</span>
@@ -216,7 +235,7 @@ svg text{font-family:var(--f-body)}
         </div>
       </figure>
       <figure id="upperFig" hidden>
-        <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span>노란 칸이 해당 교실입니다</span></figcaption>
+        <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span class="zoomctl" data-map="upper"><span class="zh">휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">전체</button><span class="zl" id="zl_upper">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="upper" role="img" aria-label="2층부터 4층까지 교실 배치"></svg></div>
       </figure>
     </div>
@@ -359,7 +378,7 @@ PHASES.forEach(p=>p.items.forEach(it=>{ if(it.id){ ITEM[it.id]=it; it.phase=p.id
 let overrides = {};       // slotId -> name (공유 저장분)
 const dirty = {};         // 아직 저장 확인 안 된 내 수정
 let phaseIdx = 0;
-let hover = null;         // item id
+let sel = null;           // 선택한 역할 (item id)
 let person = null;        // 선택한 선생님 이름
 let readOnly = false;
 
@@ -432,6 +451,7 @@ function tagSVG(o){
   const w = 34 + Math.max(capW,nmW) + 10, h = 38;
   const lx = tx - w/2, ly = ty - h/2;
   let s = `<g class="tag ${cls}" data-item="${id}" tabindex="0" role="button" aria-label="${esc(num+'. '+cap+' '+nm)}">`;
+  if(o.sel) s += `<circle class="pulse" cx="${x}" cy="${y}" r="5"/>`;
   if(Math.hypot(tx-x,ty-y) > 6) s += `<line class="lead" x1="${x}" y1="${y}" x2="${tx}" y2="${ty}"/>`;
   s += `<circle class="anchor" cx="${x}" cy="${y}" r="4"/>`;
   s += `<rect class="pill" x="${lx}" y="${ly}" width="${w}" height="${h}" rx="9"/>`;
@@ -459,6 +479,7 @@ function renderSite(){
   s = `<defs><marker id="arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--route)"/></marker></defs>` + s;
   // 같은 장소는 겹쳐 쌓기
   const byLoc = {};
+  let selTag = '';
   items.forEach(it=>{ (byLoc[it.loc] ||= []).push(it); });
   Object.entries(byLoc).forEach(([k,list])=>{
     const L = LOC[k];
@@ -467,11 +488,13 @@ function renderSite(){
       const ty = L.ty + dir*i*44*(L.inside? .85 : 1);
       const cap = it.task.replace(/\s*\(.*?\)\s*/g,' ').trim();
       const nm = itemNames(it).join(' · ') || '미정';
-      const cls = [it.cont?'cont':'', hover===it.srcId?'hl':'', person ? (itemHasPerson(it)?'me':'dimmed') : ''].join(' ');
-      s += tagSVG({x:L.x,y:L.y,tx:L.tx,ty,num:it.num,cap:shortCap(cap),nm,cls,id:it.srcId});
+      const isSel = sel===it.srcId;
+      const cls = [it.cont?'cont':'', isSel?'sel':'', (sel && !isSel) ? 'dimmed' : person ? (itemHasPerson(it)?'me':'dimmed') : ''].join(' ');
+      const svgTag = tagSVG({x:L.x,y:L.y,tx:L.tx,ty,num:it.num,cap:shortCap(cap),nm,cls,id:it.srcId,sel:isSel});
+      if(isSel) selTag = svgTag; else s += svgTag;
     });
   });
-  document.getElementById('site').innerHTML = s;
+  document.getElementById('site').innerHTML = s + selTag;   // 선택한 이름표는 맨 위에
   document.getElementById('routeNote').textContent = (p.routes||[]).map(k=>'· '+ROUTES[k].note).join('  ');
 }
 function shortCap(c){ return c.length>16 ? c.slice(0,15)+'…' : c; }
@@ -488,7 +511,7 @@ function renderUpper(){
   const marks = {}; // roomKey -> {top, names, itemId, num, cls}
   phaseItems(p).forEach(it=>{
     if(it.group || it.loc!=='U') return;
-    const hl = hover===it.srcId, me = person && itemHasPerson(it);
+    const hl = sel===it.srcId, me = person && itemHasPerson(it);
     if(it.perSlotRoom){
       it.slots.forEach(sl=>{
         const nm = nameOf(sl[0]) || '미정';
@@ -512,8 +535,9 @@ function renderUpper(){
     rs.forEach(r=>{
       const k = keyOf(r), m = k && marks[k];
       if(m){
-        const cls = 'on' + (m.hl?' hl':'');
-        s += `<rect class="room ${cls}" x="${r[1]}" y="${r[2]}" width="${r[3]}" height="${r[4]}" data-item="${m.id}" style="${m.me?'fill:var(--mark);':''}${person&&!m.me?'opacity:.35;':''}"/>`;
+        const cls = 'on' + (m.hl?' sel':'');
+        const dim = sel ? !m.hl : (person && !m.me);
+        s += `<rect class="room ${cls}" x="${r[1]}" y="${r[2]}" width="${r[3]}" height="${r[4]}" data-item="${m.id}" style="${m.me&&!sel?'fill:var(--mark);':''}${dim?'opacity:.35;':''}"/>`;
       } else {
         s += `<g class="faded">${roomRect(r)}${roomLabel(r,9)}</g>`;
       }
@@ -522,22 +546,18 @@ function renderUpper(){
       const k = keyOf(r), m = k && marks[k];
       if(!m) return;
       const cx = r[1]+r[3]/2, cy = r[2]+r[4]/2;
-      const two = r[4] >= 26;
-      const line = two ? m.nm : `${m.top} ${m.nm}`;
-      const fs = Math.max(7, Math.min(13, (r[3]-6)/tw(line,1)));
-      if(two){
-        const fs2 = Math.min(10, (r[3]-6)/tw(m.top,1));
-        s += `<text class="rsub" x="${cx}" y="${cy-7}" font-size="${fs2.toFixed(1)}">${esc(m.top)}</text>`;
-        s += `<text class="rname" x="${cx}" y="${cy+6}" font-size="${fs.toFixed(1)}"${m.me?' style="fill:#1B2723"':''}>${esc(m.nm)}</text>`;
-      } else {
-        s += `<text class="rname" x="${cx}" y="${cy}" font-size="${fs.toFixed(1)}"${m.me?' style="fill:#1B2723"':''}>${esc(line)}</text>`;
-      }
+      // 모든 교실을 같은 한 줄 형식으로: "3-1 하교 심미순"
+      const line = `${m.top} ${m.nm}`;
+      const fs = Math.max(7, Math.min(12, (r[3]-6)/tw(line,1), 19*0.62));
+      const dark = m.hl || (m.me && !sel);
+      const dim = sel ? !m.hl : (person && !m.me);
+      s += `<text class="rname" x="${cx}" y="${cy}" font-size="${fs.toFixed(1)}" style="${dark?'fill:#1B2723;':''}${dim?'opacity:.4;':''}">${esc(line)}</text>`;
     });
     s += `</g>`;
     off += H + 30;
   });
   const svg = document.getElementById('upper');
-  svg.setAttribute('viewBox', `${UX0-4} -4 ${UX1-UX0+8} ${off-2}`);
+  setBase('upper', [UX0-4, -4, UX1-UX0+8, off-2]);
   svg.innerHTML = s;
 }
 
@@ -555,9 +575,9 @@ function renderTasks(){
     const L = it.loc && it.loc!=='U' ? LOC[it.loc].name : '';
     const where = it.where || L;
     const numCls = it.cont ? 'cont' : (it.loc ? '' : 'none');
-    const cls = [hover===it.srcId?'hl':'', itemHasPerson(it)?'me':''].join(' ');
+    const cls = [sel===it.srcId?'sel':'', itemHasPerson(it)?'me':''].join(' ');
     h += `<div class="item ${cls}" data-item="${it.srcId}">`;
-    h += `<span class="num ${numCls}" title="${it.loc?'지도에 표시됨':'지도 표시 없음'}">${it.num}</span><div>`;
+    h += `<button type="button" class="num ${numCls} ${sel===it.srcId?'sel':''}" data-sel="${it.srcId}" aria-pressed="${sel===it.srcId}" title="${it.loc?'누르면 배치도에 진하게 표시':'배치도 표시 없음'}">${it.num}</button><div>`;
     if(it.time) h += `<div class="itime">${esc(it.time)}${it.cont?' · 앞 단계에서 계속':''}</div>`;
     h += `<div class="itask">${esc(it.task)}</div>`;
     if(it.detail) h += `<div class="idetail">${esc(it.detail)}</div>`;
@@ -613,7 +633,7 @@ function renderMaps(){ renderSite(); renderUpper(); }
 function renderAll(){ renderSteps(); renderHead(); renderMaps(); renderTasks(); renderPeople(); }
 function go(i){
   phaseIdx = Math.max(0, Math.min(PHASES.length-1, i));
-  hover = null;
+  sel = null;
   try{ history.replaceState(null,'','#'+PHASES[phaseIdx].id); }catch(e){}
   renderSteps(); renderHead(); renderMaps(); renderTasks();
 }
@@ -621,30 +641,141 @@ function go(i){
 /* ---------- 이벤트 ---------- */
 document.addEventListener('click', e=>{
   const g = e.target.closest('[data-go]');
-  if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ setHover(it); document.querySelector(`.item[data-item="${it}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); } return; }
+  if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ select(it, true); document.querySelector(`.item[data-item="${it}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); } return; }
+  const sb = e.target.closest('[data-sel]');
+  if(sb){ select(sel===sb.dataset.sel ? null : sb.dataset.sel, true); return; }
+  const zb = e.target.closest('[data-zoom]');
+  if(zb){ zoomBtn(zb.closest('.zoomctl').dataset.map, zb.dataset.zoom); return; }
   const pp = e.target.closest('[data-person]');
   if(pp){ person = pp.dataset.person===person ? null : pp.dataset.person; renderPeople(); renderMaps(); renderTasks(); return; }
   if(e.target.id==='clearPerson'){ person=null; renderPeople(); renderMaps(); renderTasks(); return; }
   if(e.target.id==='prevBtn') return go(phaseIdx-1);
   if(e.target.id==='nextBtn') return go(phaseIdx+1);
   const t = e.target.closest('svg [data-item]');
-  if(t){ setHover(hover===t.dataset.item?null:t.dataset.item); document.querySelector(`.item[data-item="${t.dataset.item}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  if(t){ select(sel===t.dataset.item?null:t.dataset.item, false); document.querySelector(`.item[data-item="${t.dataset.item}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); }
 });
 document.addEventListener('keydown', e=>{
   if(e.target.matches('input')) { if(e.key==='Enter') e.target.blur(); return; }
   if(e.key==='ArrowRight') go(phaseIdx+1);
   if(e.key==='ArrowLeft') go(phaseIdx-1);
-  if((e.key==='Enter'||e.key===' ') && e.target.matches('svg [data-item]')){ e.preventDefault(); setHover(e.target.dataset.item); }
+  if((e.key==='Enter'||e.key===' ') && e.target.matches('svg [data-item]')){ e.preventDefault(); select(e.target.dataset.item, false); }
+  if(e.key==='Escape' && sel) select(null);
 });
-function setHover(id){
-  hover = id;
+function select(id, reveal){
+  sel = id;
   renderMaps();
-  document.querySelectorAll('.item').forEach(el=>el.classList.toggle('hl', el.dataset.item===id));
+  document.querySelectorAll('.item').forEach(el=>el.classList.toggle('sel', el.dataset.item===id));
+  document.querySelectorAll('.num[data-sel]').forEach(b=>{ const on = b.dataset.sel===id; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
+  if(id && reveal) revealOnMap(id);
 }
-document.getElementById('tasks').addEventListener('mouseover', e=>{
-  const it = e.target.closest('.item'); if(it && it.dataset.item!==hover) setHover(it.dataset.item);
+
+/* ---------- 확대 · 축소 · 이동 ---------- */
+const VIEW = { site:{base:[-205,668,1030,402], v:null}, upper:{base:null, v:null} };
+const MAXZ = 6;
+function setBase(id, b){
+  const z = VIEW[id];
+  const changed = !z.base || z.base.join() !== b.join();
+  z.base = b; if(changed) z.v = null;
+  applyView(id);
+}
+function applyView(id){
+  const z = VIEW[id]; if(!z.base) return;
+  const v = z.v || z.base;
+  document.getElementById(id).setAttribute('viewBox', v.map(n=>+n.toFixed(2)).join(' '));
+  const zl = document.getElementById('zl_'+id);
+  if(zl) zl.textContent = Math.round(z.base[2]/v[2]*100) + '%';
+}
+function clampView(id, v){
+  const b = VIEW[id].base;
+  let [x,y,w,h] = v;
+  w = Math.min(b[2], Math.max(b[2]/MAXZ, w)); h = w * b[3]/b[2];
+  x = Math.min(b[0]+b[2]-w, Math.max(b[0], x));
+  y = Math.min(b[1]+b[3]-h, Math.max(b[1], y));
+  return [x,y,w,h];
+}
+function toSvg(svg, cx, cy){
+  const pt = svg.createSVGPoint(); pt.x = cx; pt.y = cy;
+  const m = svg.getScreenCTM(); return m ? pt.matrixTransform(m.inverse()) : {x:0,y:0};
+}
+function zoomAt(id, factor, cx, cy){
+  const z = VIEW[id]; if(!z.base) return;
+  const svg = document.getElementById(id);
+  const v = z.v || z.base;
+  const p = (cx==null) ? {x:v[0]+v[2]/2, y:v[1]+v[3]/2} : toSvg(svg, cx, cy);
+  const w = Math.min(z.base[2], Math.max(z.base[2]/MAXZ, v[2]*factor));
+  const k = w / v[2];
+  z.v = clampView(id, [p.x-(p.x-v[0])*k, p.y-(p.y-v[1])*k, w, 0]);
+  if(z.v[2] >= z.base[2]-0.01) z.v = null;
+  applyView(id);
+}
+function zoomBtn(id, what){
+  if(what==='in') zoomAt(id, 1/1.4);
+  else if(what==='out') zoomAt(id, 1.4);
+  else { VIEW[id].v = null; applyView(id); }
+}
+function revealOnMap(id){
+  ['site','upper'].forEach(mid=>{
+    const z = VIEW[mid]; if(!z.v) return;              // 전체 보기일 때는 이미 다 보임
+    const svg = document.getElementById(mid);
+    const els = [...svg.querySelectorAll(`[data-item="${id}"]`)];
+    if(!els.length) return;
+    const sr = svg.getBoundingClientRect();
+    let l=Infinity,t=Infinity,r=-Infinity,b=-Infinity;
+    els.forEach(el=>{ const q = el.getBoundingClientRect(); l=Math.min(l,q.left); t=Math.min(t,q.top); r=Math.max(r,q.right); b=Math.max(b,q.bottom); });
+    if(l>=sr.left && r<=sr.right && t>=sr.top && b<=sr.bottom) return;
+    const c = toSvg(svg, (l+r)/2, (t+b)/2);
+    const v = z.v;
+    z.v = clampView(mid, [c.x - v[2]/2, c.y - v[3]/2, v[2], v[3]]);
+    applyView(mid);
+  });
+}
+['site','upper'].forEach(id=>{
+  const svg = document.getElementById(id);
+  svg.addEventListener('wheel', e=>{
+    if(!VIEW[id].base) return;
+    e.preventDefault();
+    zoomAt(id, Math.pow(1.0015, e.deltaY * (e.deltaMode===1 ? 30 : 1)), e.clientX, e.clientY);
+  }, {passive:false});
+  const pts = new Map(); let drag = null, pinch = null, moved = false;
+  svg.addEventListener('pointerdown', e=>{
+    if(e.button!==undefined && e.button!==0) return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    moved = false;
+    if(pts.size===1){ drag = {x:e.clientX, y:e.clientY, v:(VIEW[id].v||VIEW[id].base).slice()}; }
+    else if(pts.size===2){
+      const [a,b] = [...pts.values()];
+      pinch = {d:Math.hypot(a.x-b.x,a.y-b.y), v:(VIEW[id].v||VIEW[id].base).slice()}; drag = null;
+    }
+  });
+  svg.addEventListener('pointermove', e=>{
+    if(!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pinch && pts.size===2){
+      const [a,b] = [...pts.values()];
+      const d = Math.hypot(a.x-b.x,a.y-b.y);
+      VIEW[id].v = pinch.v.slice();
+      zoomAt(id, pinch.d/d, (a.x+b.x)/2, (a.y+b.y)/2);
+      moved = true; return;
+    }
+    if(!drag) return;
+    const dx = e.clientX-drag.x, dy = e.clientY-drag.y;
+    if(!moved && Math.hypot(dx,dy) < 4) return;
+    if(!moved){ moved = true; svg.classList.add('dragging'); try{ svg.setPointerCapture(e.pointerId); }catch(err){} }
+    const s = drag.v[2] / svg.getBoundingClientRect().width;
+    if(!VIEW[id].v && drag.v[2] >= VIEW[id].base[2]-0.01) return;   // 전체 보기에서는 움직일 곳이 없음
+    VIEW[id].v = clampView(id, [drag.v[0]-dx*s, drag.v[1]-dy*s, drag.v[2], drag.v[3]]);
+    applyView(id);
+  });
+  const end = e=>{
+    pts.delete(e.pointerId);
+    if(pts.size<2) pinch = null;
+    if(pts.size===0){ drag = null; svg.classList.remove('dragging'); }
+  };
+  svg.addEventListener('pointerup', end);
+  svg.addEventListener('pointercancel', end);
+  // 끌어서 옮긴 경우에는 이름표 클릭으로 처리하지 않음
+  svg.addEventListener('click', e=>{ if(moved){ e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
 });
-document.getElementById('tasks').addEventListener('mouseleave', ()=>setHover(null));
 document.getElementById('tasks').addEventListener('input', e=>{
   const inp = e.target.closest('.nmi'); if(!inp) return;
   const id = inp.dataset.slot, v = inp.value;
