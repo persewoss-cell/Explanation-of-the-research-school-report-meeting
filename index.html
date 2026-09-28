@@ -291,6 +291,8 @@ const UROOM = {
   '꿈꾸는놀이터':[2,'꿈꾸는놀이터'],'무한상상실':[4,'무한상상실'],'2030교실':[2,'2030교실'],'학습도움실2':[2,'학습도움실2'],
 };
 const HOMEROOMS = ['1-1','2-1','3-1','3-2','4-1','4-2','5-1','5-2','6-1','6-2'];
+// 특별실은 교실 칸에 이름을 함께 표기
+const SPECIAL_NAME = {'꿈꾸는놀이터':'꿈꾸는 놀이터','무한상상실':'무한상상실','2030교실':'2030 교실'};
 
 /* ---------- 시간대별 역할 (계획서 기준) ---------- */
 const PHASES = [
@@ -299,7 +301,10 @@ const PHASES = [
    upper:true,
    items:[
     {id:'a1', time:'08:30', task:'교직원 출근 시 학교 주변에 주차', loc:null, slots:[['a1a','','전교직원']]},
-    {id:'a2', time:'오전', task:'학년(학급) 교실 환경 구축 확인 및 청결 유지', where:'각 학급 교실 (2~4층)', loc:'U', uroom:HOMEROOMS, slots:[['a2a','','담임']]},
+    {id:'a2', time:'오전', task:'학년(학급) 교실 환경 구축 확인 및 청결 유지', detail:'특별실에서 수업하는 반은 특별실도 함께 확인합니다 (4-1 꿈꾸는 놀이터, 5-1 무한상상실, 6-1 2030 교실)', where:'각 학급 교실 + 수업 특별실 (2~4층)', loc:'U',
+     uroom:[...HOMEROOMS,'꿈꾸는놀이터','무한상상실','2030교실'],
+     roomTop:{'꿈꾸는놀이터':'4-1','무한상상실':'5-1','2030교실':'6-1'},
+     slots:[['a2a','','담임']]},
     {id:'a3', time:'13:10', task:'보고회장 준비', detail:'영상, 국민의례, 보고 파일 등 점검', loc:'hall', slots:[['a3a','','교무'],['a3b','','연구']]},
    ]},
  { id:'p2', time:'13:20 – 14:00', title:'손님맞이 · 참관 입실', step:'손님맞이',
@@ -541,7 +546,7 @@ function renderUpper(){
       });
     } else {
       const nm = itemNames(it).join('·') || '미정';
-      it.uroom.forEach(rk=>{ marks[rk] = {top: it.short || rk, nm, id:it.srcId, hl, me}; });
+      it.uroom.forEach(rk=>{ marks[rk] = {top: (it.roomTop&&it.roomTop[rk]) || it.short || rk, nm, note:SPECIAL_NAME[rk], id:it.srcId, hl, me}; });
     }
   });
   let s = '', off = 0;
@@ -568,7 +573,7 @@ function renderUpper(){
       if(!m) return;
       const cx = r[1]+r[3]/2, cy = r[2]+r[4]/2;
       // 모든 교실을 같은 한 줄 형식으로: "3-1 하교 심미순"
-      const line = `${m.top} ${m.nm}`;
+      const line = `${m.top} ${m.nm}` + (m.note ? ` · ${m.note}` : '');
       const fs = Math.max(7, Math.min(12, (r[3]-6)/tw(line,1), 19*0.62));
       const dark = m.hl || (m.me && !sel);
       const dim = sel ? !m.hl : (person && !m.me);
