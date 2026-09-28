@@ -573,11 +573,18 @@ function renderUpper(){
       if(!m) return;
       const cx = r[1]+r[3]/2, cy = r[2]+r[4]/2;
       // 모든 교실을 같은 한 줄 형식으로: "3-1 하교 심미순"
-      const line = `${m.top} ${m.nm}` + (m.note ? ` · ${m.note}` : '');
-      const fs = Math.max(7, Math.min(12, (r[3]-6)/tw(line,1), 19*0.62));
+      // 한 줄: "3-1 최대인" / 특별실은 두 줄: "4-1 박동진" + "꿈꾸는 놀이터" (글자 크기는 다른 교실과 같게)
+      const FS = 19*0.62;                                  // 모든 교실 공통 글자 크기
+      const one = `${m.top} ${m.nm}`;
+      const lines = m.note ? [one, m.note] : (tw(one,FS) <= r[3]-6 ? [one] : [m.top, m.nm]);
+      const widest = Math.max(...lines.map(l=>tw(l,1)));
+      const fs = Math.max(8, Math.min(FS, (r[3]-6)/widest));
       const dark = m.hl || (m.me && !sel);
       const dim = sel ? !m.hl : (person && !m.me);
-      s += `<text class="rname" x="${cx}" y="${cy}" font-size="${fs.toFixed(1)}" style="${dark?'fill:#1B2723;':''}${dim?'opacity:.4;':''}">${esc(line)}</text>`;
+      const lh = fs*1.12, y0 = cy - (lines.length-1)*lh/2;
+      lines.forEach((l,i)=>{
+        s += `<text class="rname" x="${cx}" y="${(y0+i*lh).toFixed(1)}" font-size="${fs.toFixed(1)}" style="${dark?'fill:#1B2723;':''}${dim?'opacity:.4;':''}">${esc(l)}</text>`;
+      });
     });
     s += `</g>`;
     off += H + 30;
