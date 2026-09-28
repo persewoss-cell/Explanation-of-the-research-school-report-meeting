@@ -346,6 +346,8 @@ const PHASES = [
     {id:'d5', time:'14:40 – 15:00', task:'학급별 하교 지도', where:'각 학급 교실 → 교문', loc:'U', perSlotRoom:true,
      slots:[['d5a','1-1','김다정','1-1'],['d5b','2-1','하윤희','2-1'],['d5c','3-1','심미순','3-1'],['d5d','3-2','최세희','3-2'],['d5e','4-1','유창모','4-1'],
             ['d5f','4-2','강수정','4-2'],['d5g','5-1','서지수','5-1'],['d5h','5-2','이경희','5-2'],['d5i','6-1','김애경','6-1'],['d5j','6-2','정여진','6-2']]},
+    {group:'중동관 집결 · 15:00 전'},
+    {id:'d6', time:'15:00 전', task:'전체 교직원 중동관 집결', detail:'하교 지도 및 안내를 마친 뒤 보고회 시작 전까지 중동관으로 모입니다', loc:'hall', slots:[['d6a','','전교직원']]},
    ]},
  { id:'p5', time:'15:00 – 16:10', title:'운영 보고회', step:'운영 보고회',
    sub:'장소: 중동관. 개회 → 운영 결과 발표 → 질의응답 및 협의 → 지도 조언 → 폐회',
@@ -453,7 +455,8 @@ function siteBase(){
   // 필로티 양쪽 현관 문 표시
   s += `<rect x="224" y="823" width="16" height="4" fill="var(--accent)"/><rect x="273" y="823" width="16" height="4" fill="var(--accent)"/>`;
   // 방위
-  s += `<g transform="translate(800 692)"><path d="M0 -12 L6 6 L0 2 L-6 6 Z" fill="var(--ink2)"/><text class="site-sm" x="0" y="16" font-size="10">북</text></g>`;
+  // 방위: 배치도 왼쪽이 북쪽
+  s += `<g transform="translate(796 690)"><path d="M-14 0 L4 -6 L0 0 L4 6 Z" fill="var(--ink2)"/><text class="site-txt" x="-24" y="0" font-size="11">북</text></g>`;
   s += `<text class="site-txt" x="-141" y="686" font-size="13">데시앙 아파트</text>`;
   return s;
 }
