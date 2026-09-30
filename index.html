@@ -275,8 +275,8 @@ const LOC = {
   backGate:   {x:22,  y:706, tx:110, ty:690, name:'후문'},
   desian:     {x:-140,y:845, tx:-140,ty:800, name:'데시앙 아파트'},
   mainGate:   {x:24,  y:951, tx:-60, ty:1012,name:'정문'},
-  stone:      {x:205, y:902, tx:205, ty:953, name:'표지석 입구'},
-  piloti:     {x:255, y:834, tx:205, ty:872, name:'필로티 양쪽 현관'},
+  stone:      {x:205, y:946, tx:205, ty:872, name:'표지석 입구'},
+  piloti:     {x:256, y:826, anchors:[[232,826],[281,826]], tx:256, ty:700, name:'필로티 양쪽 현관'},
   cafeLot:    {x:765, y:790, tx:728, ty:697, name:'급식실 쪽 주차장'},
   stairBack:  {x:240, y:799, tx:215, ty:700, name:'후관 1층 계단 (엘리베이터 옆)'},
   stairMain:  {x:489, y:804, tx:520, ty:700, name:'본관 1층 계단 (보건실 옆)'},
@@ -308,7 +308,7 @@ const PHASES = [
     {id:'a3', time:'13:10', task:'보고회장 준비', detail:'영상, 국민의례, 보고 파일 등 점검', loc:'hall', slots:[['a3a','','교무'],['a3b','','연구']]},
    ]},
  { id:'p2', time:'13:20 – 14:00', title:'손님맞이 · 참관 입실', step:'손님맞이',
-   sub:'주차 안내와 참관 자료 배부. 참관자는 정문 → 표지석 입구(안내) → 필로티 앞 → 양쪽 현관으로 나뉘어 교실로 들어갑니다.',
+   sub:'주차 안내와 참관 자료 배부. 참관자는 정문 → 표지석 입구(안내) → 표지석 양옆으로 돌아 → 필로티 양쪽 현관으로 나뉘어 교실로 들어갑니다.',
    routes:['entry'],
    items:[
     {id:'b1', time:'13:20 – 14:10', task:'내빈 및 협의체 위원 주차 안내', detail:'도교육청, 광양교육지원청 포함', loc:'cafeLot', slots:[['b1a','','원감'],['b1b','','행정실장']]},
@@ -383,12 +383,14 @@ const PHASES = [
 
 /* ---------- 이동 동선 ---------- */
 const ROUTES = {
-  entry:{note:'정문 → 표지석 입구 → 필로티 → 양쪽 현관', paths:[
-    '!M 30 951 L 128 951 L 205 906 L 255 850', 'M 255 850 L 232 832', 'M 255 850 L 280 832']},
+  entry:{note:'정문 → 표지석 입구 → 표지석 양옆으로 돌아 → 필로티 양쪽 현관', paths:[
+    '!M 30 951 L 205 951',
+    'M 205 951 L 150 951 L 150 850 L 232 850 L 232 834',
+    'M 205 951 L 264 951 L 264 850 L 281 850 L 281 834']},
   toHall:{note:'본관·후관 계단 → 필로티(표지석 쪽) 현관에서 합류 → 중동관', paths:[
     '!M 240 812 L 255 850',
     '!M 489 812 L 489 833 L 292 833 L 255 850',
-    'M 255 850 L 205 906 L 150 950 L 130 984']},
+    'M 255 850 L 150 850 L 150 951 L 130 984']},
 };
 
 /* ---------- 상태 ---------- */
@@ -457,6 +459,11 @@ function siteBase(){
   s += `<text class="site-txt" x="22" y="700" font-size="10">후</text><text class="site-txt" x="22" y="714" font-size="10">문</text>`;
   // 표지석
   s += `<path d="M 196 910 Q 205 892 214 910 Z" fill="var(--r-stroke)"/><text class="site-sm" x="205" y="921" font-size="9">표지석</text>`;
+  // 출입구 안내판 (교무실 쪽 건물 모서리 아래)
+  s += `<g><line x1="300" y1="924" x2="300" y2="938" stroke="var(--ink2)" stroke-width="2"/>`
+     + `<rect x="289" y="912" width="22" height="13" rx="2" fill="var(--mark)" stroke="#1B2723" stroke-width="1.2"/>`
+     + `<text x="300" y="918.5" font-size="7" font-weight="700" fill="#1B2723" text-anchor="middle" dominant-baseline="central">안내</text>`
+     + `<text class="site-txt" x="318" y="928" font-size="11" style="text-anchor:start">출입구 안내판</text></g>`;
   // 필로티 양쪽 현관 문 표시
   s += `<rect x="224" y="823" width="16" height="4" fill="var(--accent)"/><rect x="273" y="823" width="16" height="4" fill="var(--accent)"/>`;
   // 방위
@@ -473,9 +480,11 @@ function tagSVG(o){
   const w = tx0 + 3 + Math.max(capW,nmW) + 10, h = 38;
   const lx = tx - w/2, ly = ty - h/2;
   let s = `<g class="tag ${cls}" data-item="${id}" tabindex="0" role="button" aria-label="${esc((num==null?'':num+'. ')+cap+' '+nm)}">`;
-  if(o.sel) s += `<circle class="pulse" cx="${x}" cy="${y}" r="5"/>`;
-  if(Math.hypot(tx-x,ty-y) > 6) s += `<line class="lead" x1="${x}" y1="${y}" x2="${tx}" y2="${ty}"/>`;
-  s += `<circle class="anchor" cx="${x}" cy="${y}" r="4"/>`;
+  (o.anchors || [[x,y]]).forEach(([ax,ay])=>{
+    if(o.sel) s += `<circle class="pulse" cx="${ax}" cy="${ay}" r="5"/>`;
+    if(Math.hypot(tx-ax,ty-ay) > 6) s += `<line class="lead" x1="${ax}" y1="${ay}" x2="${tx}" y2="${ty}"/>`;
+    s += `<circle class="anchor" cx="${ax}" cy="${ay}" r="4"/>`;
+  });
   s += `<rect class="pill" x="${lx}" y="${ly}" width="${w}" height="${h}" rx="9"/>`;
   if(num!=null) s += `<circle class="badge" cx="${lx+15}" cy="${ty}" r="10"/><text class="bnum" x="${lx+15}" y="${ty+.5}">${esc(num)}</text>`;
   s += `<text class="cap" x="${lx+tx0}" y="${ty-6}">${esc(cap)}</text>`;
@@ -516,7 +525,7 @@ function renderSite(){
       const nm = itemNames(it).join(' · ') || '미정';
       const isSel = sel===it.srcId;
       const cls = [it.cont?'cont':'', isSel?'sel':'', (sel && !isSel) ? 'dimmed' : person ? (itemHasPerson(it)?'me':'dimmed') : ''].join(' ');
-      const svgTag = tagSVG({x:L.x,y:L.y,tx:L.tx,ty,num:it.num,cap:shortCap(cap),nm,cls,id:it.srcId,sel:isSel});
+      const svgTag = tagSVG({x:L.x,y:L.y,anchors:L.anchors,tx:L.tx,ty,num:it.num,cap:shortCap(cap),nm,cls,id:it.srcId,sel:isSel});
       if(isSel) selTag = svgTag; else s += svgTag;
     });
   });
