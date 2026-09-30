@@ -191,6 +191,10 @@ svg text{font-family:var(--f-body)}
 .dayhead strong{font-family:var(--f-disp);font-size:26px;font-weight:400}
 .confirm{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--route)}
 
+@media (min-width:1081px){
+  .tasks{position:sticky;top:var(--steps-h,76px);max-height:calc(100vh - var(--steps-h,76px) - 12px);overflow:auto}
+}
+.tasks .tail{flex:none}
 @media (max-width:1080px){
   .stage{grid-template-columns:minmax(0,1fr)}
   .people{grid-template-columns:minmax(0,1fr)}
@@ -638,7 +642,9 @@ function renderTasks(){
     h += `</div></div></div>`;
   });
   h += `<p class="hint">${readOnly ? '보기 전용입니다. 이름을 바꾸려면 이 페이지의 편집 권한이 필요합니다.' : '이름 칸을 눌러 바로 고칠 수 있습니다. 여러 명은 쉼표(,)로 구분하세요. 고친 이름은 이 페이지를 여는 모든 선생님께 똑같이 보입니다.'}</p>`;
-  box.innerHTML = h;
+  box.innerHTML = h + `<div class="tail" aria-hidden="true"></div>`;
+  box.scrollTop = 0;
+  sizeTail();
 }
 
 /* ---------- 선생님별 ---------- */
@@ -680,6 +686,31 @@ function renderHead(){
 function setPhH(){
   const st = document.querySelector('.stage'), ph = document.querySelector('.phasehead');
   if(st && ph) st.style.setProperty('--ph-h', ph.offsetHeight + 'px');
+  const steps = document.getElementById('steps');
+  if(steps) document.documentElement.style.setProperty('--steps-h', (steps.offsetHeight + 8) + 'px');
+  sizeTail();
+}
+// 목록이 따로 스크롤되는 화면인지
+const tasksScrolls = box => getComputedStyle(box).overflowY === 'auto';
+function sizeTail(){
+  const box = document.getElementById('tasks'), tail = box && box.querySelector('.tail');
+  if(!tail) return;
+  tail.style.height = tasksScrolls(box) ? Math.max(0, box.clientHeight - 140) + 'px' : '0px';
+}
+// 선택한 번호를 목록 맨 위(배치도 옆)로 부드럽게 올림
+function scrollItemTop(id){
+  const box = document.getElementById('tasks');
+  const el = box.querySelector(`.item[data-item="${id}"]`);
+  if(!el) return;
+  const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto';
+  if(!tasksScrolls(box)){ el.scrollIntoView({block:'nearest', behavior:smooth}); return; }
+  sizeTail();
+  // 묶음 제목 바로 아래 첫 항목이면 제목도 함께 보이게
+  let top = el;
+  let prev = el.previousElementSibling;
+  while(prev && (prev.tagName==='H3' || prev.classList.contains('gnote'))){ top = prev; prev = prev.previousElementSibling; }
+  const y = top.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 12;
+  box.scrollTo({top: Math.max(0, y), behavior: smooth});
 }
 window.addEventListener('resize', setPhH);
 function renderMaps(){ renderSite(); renderUpper(); }
@@ -694,7 +725,7 @@ function go(i){
 /* ---------- 이벤트 ---------- */
 document.addEventListener('click', e=>{
   const g = e.target.closest('[data-go]');
-  if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ select(it, true); document.querySelector(`.item[data-item="${it}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); } return; }
+  if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ select(it, true); scrollItemTop(it); } return; }
   const sb = e.target.closest('[data-sel]');
   if(sb){ select(sel===sb.dataset.sel ? null : sb.dataset.sel, true); return; }
   const zb = e.target.closest('[data-zoom]');
@@ -706,7 +737,7 @@ document.addEventListener('click', e=>{
   if(e.target.id==='nextBtn') return stepNext();
   if(e.target.id==='fsBtn') return isFs() ? exitFs() : enterFs();
   const t = e.target.closest('svg [data-item]');
-  if(t){ select(sel===t.dataset.item?null:t.dataset.item, false); document.querySelector(`.item[data-item="${t.dataset.item}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+  if(t){ select(sel===t.dataset.item?null:t.dataset.item, false); scrollItemTop(t.dataset.item); }
   else if(e.target.closest('svg.map') && !isFs()) enterFs();     // 배치도 빈 곳을 누르면 전체화면
 });
 document.addEventListener('keydown', e=>{
@@ -729,7 +760,7 @@ function select(id, reveal){
 const stepIds = p => p.noNum ? [] : phaseItems(p).filter(it=>!it.group).map(it=>it.srcId);
 function showItem(id){
   select(id, true);
-  if(id) document.querySelector(`.item[data-item="${id}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+  if(id) scrollItemTop(id);
 }
 function stepNext(){
   const ids = stepIds(PHASES[phaseIdx]);
