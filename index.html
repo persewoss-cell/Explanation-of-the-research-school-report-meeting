@@ -327,7 +327,7 @@ const PHASES = [
     {id:'b6', time:'13:30 – 14:10', task:'덧신 배치 및 정리 봉투 세팅', loc:'piloti', slots:[['b6a','','정유선'],['b6b','','정영미']]},
     {id:'b7', time:'13:30 – 13:50', task:'수업 준비', where:'각 수업 교실 (다음 단계 2~4층 도면 참고)', loc:null, slots:[['b7a','','수업자']]},
    ]},
- { id:'p3', time:'14:00 – 14:40', title:'수업 공개', step:'수업 공개', noNum:true,
+ { id:'p3', time:'14:00 – 14:40', title:'수업 공개', step:'수업 공개', noNum:true, focusUpper:true,
    sub:'전 학급 학교자율시간 수업 공개(10학급). 도움반 학생은 같은 시간에 특별 프로그램을 합니다.',
    upper:true,
    items:[
@@ -735,6 +735,16 @@ function go(i){
   sel = null;
   try{ history.replaceState(null,'','#'+PHASES[phaseIdx].id); }catch(e){}
   renderSteps(); renderHead(); renderMaps(); renderTasks();
+  focusPhaseMap();
+}
+// 단계가 바뀌면 그 단계의 중심 배치도가 보이게: 수업 공개는 2~4층, 나머지는 1층
+function focusPhaseMap(){
+  const smooth = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  const upper = document.getElementById('upperFig');
+  if(PHASES[phaseIdx].focusUpper && !upper.hidden){ upper.scrollIntoView({block:'start', behavior:smooth}); return; }
+  const site = document.getElementById('site').closest('figure');
+  const limit = parseFloat(getComputedStyle(site).scrollMarginTop) || 0;
+  if(site.getBoundingClientRect().top < limit - 2) site.scrollIntoView({block:'start', behavior:smooth});
 }
 
 /* ---------- 이벤트 ---------- */
