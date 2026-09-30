@@ -281,7 +281,7 @@ const LABELS=[[1,196.1,750.6,"다목적실(초)"],[1,669.5,752.4,"급식실"],[4
 /* ---------- 장소 (1층 배치도 좌표) ---------- */
 const LOC = {
   backGate:   {x:22,  y:706, tx:110, ty:690, name:'후문'},
-  desian:     {x:-140,y:845, tx:-140,ty:800, name:'데시앙 아파트'},
+  desian:     {x:-104,y:718, anchors:[[-186,718],[-104,718]], tx:-122, ty:800, name:'데시앙 아파트 (후문 맞은편 입구)'},
   mainGate:   {x:24,  y:951, tx:-60, ty:1012,name:'정문'},
   stone:      {x:256, y:846, tx:205, ty:973, name:'필로티 앞 양쪽 현관 사이'},
   piloti:     {x:256, y:826, anchors:[[232,826],[281,826]], tx:256, ty:700, name:'필로티 양쪽 현관'},
@@ -440,7 +440,14 @@ function siteBase(){
   // 배경: 학교 부지, 도로, 아파트, 운동장
   s += `<rect x="-205" y="668" width="1030" height="402" fill="var(--bg)"/>`;
   s += `<rect x="-200" y="672" width="118" height="394" rx="8" fill="var(--ground)"/>`;
-  for(let i=0;i<6;i++) s += `<rect x="-188" y="${700+i*58}" width="94" height="34" rx="3" fill="var(--apt)" stroke="var(--r-stroke)" stroke-width=".5"/>`;
+  // 아파트 동 (맨 위 칸은 후문 맞은편 진입로)
+  for(let i=1;i<6;i++) s += `<rect x="-188" y="${700+i*58}" width="94" height="34" rx="3" fill="var(--apt)" stroke="var(--r-stroke)" stroke-width=".5"/>`;
+  // 데시앙 아파트 진입로 (후문 맞은편)
+  s += `<rect x="-200" y="702" width="130" height="32" fill="var(--road)"/>`;
+  s += `<line x1="-196" y1="718" x2="-74" y2="718" stroke="var(--paper)" stroke-width="1.5" stroke-dasharray="8 7"/>`;
+  // 아파트 입구 (후문과 같은 모양)
+  s += `<rect x="-98" y="701" width="16" height="34" rx="3" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.2"/>`;
+  s += `<text class="site-txt" x="-90" y="711" font-size="10">입</text><text class="site-txt" x="-90" y="725" font-size="10">구</text>`;
   s += `<rect x="-72" y="668" width="84" height="402" fill="var(--road)"/>`;
   s += `<line x1="-30" y1="672" x2="-30" y2="1066" stroke="var(--paper)" stroke-width="2" stroke-dasharray="14 12"/>`;
   s += `<rect x="-48" y="1030" width="36" height="18" rx="4" fill="var(--road)"/><text class="site-sm" x="-30" y="1039" font-size="11">도로</text>`;
