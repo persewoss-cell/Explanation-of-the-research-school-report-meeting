@@ -195,6 +195,8 @@ svg text{font-family:var(--f-body)}
   .tasks{position:sticky;top:var(--steps-h,76px);max-height:calc(100vh - var(--steps-h,76px) - 12px);overflow:auto}
 }
 .tasks .tail{flex:none}
+.maps figure{scroll-margin-top:calc(var(--steps-h,76px) + 8px)}
+.stage:fullscreen .maps figure,.stage.fs .maps figure{scroll-margin-top:calc(var(--ph-h,96px) + 10px)}
 @media (max-width:1080px){
   .stage{grid-template-columns:minmax(0,1fr)}
   .people{grid-template-columns:minmax(0,1fr)}
@@ -697,13 +699,26 @@ function sizeTail(){
   if(!tail) return;
   tail.style.height = tasksScrolls(box) ? Math.max(0, box.clientHeight - 140) + 'px' : '0px';
 }
+// 번호가 표시된 배치도(1층 / 2~4층)로 화면 이동
+function mapFigOf(id){
+  const it = ITEM[id];
+  if(!it || !it.loc) return null;
+  if(it.loc==='U'){ const f = document.getElementById('upperFig'); return f.hidden ? null : f; }
+  return document.getElementById('site').closest('figure');
+}
+function scrollToMap(id){
+  const fig = mapFigOf(id);
+  if(!fig) return;
+  const smooth = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  fig.scrollIntoView({block:'start', behavior:smooth});
+}
 // 선택한 번호를 목록 맨 위(배치도 옆)로 부드럽게 올림
 function scrollItemTop(id){
   const box = document.getElementById('tasks');
   const el = box.querySelector(`.item[data-item="${id}"]`);
   if(!el) return;
   const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto';
-  if(!tasksScrolls(box)){ el.scrollIntoView({block:'nearest', behavior:smooth}); return; }
+  if(!tasksScrolls(box)){ if(!mapFigOf(id)) el.scrollIntoView({block:'nearest', behavior:smooth}); return; }
   sizeTail();
   // 묶음 제목 바로 아래 첫 항목이면 제목도 함께 보이게
   let top = el;
@@ -752,7 +767,7 @@ function select(id, reveal){
   renderMaps();
   document.querySelectorAll('.item').forEach(el=>el.classList.toggle('sel', el.dataset.item===id));
   document.querySelectorAll('.num[data-sel]').forEach(b=>{ const on = b.dataset.sel===id; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
-  if(id && reveal) revealOnMap(id);
+  if(id && reveal){ revealOnMap(id); scrollToMap(id); }
   updateNav();
 }
 
