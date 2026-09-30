@@ -82,10 +82,12 @@ h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,3.2vw,38px);li
 .nav #nextBtn:disabled{background:var(--paper);color:var(--ink);border-color:var(--line)}
 .nav #fsBtn{font-size:13px}
 .bul{width:10px;height:10px;border-radius:50%;background:var(--accent);margin:8px 0 0 8px}
-.stage:fullscreen{background:var(--bg);padding:16px 20px;overflow:auto;grid-template-columns:minmax(0,2.4fr) minmax(300px,1fr);align-content:start}
-.stage.fs{position:fixed;inset:0;z-index:50;background:var(--bg);padding:16px 20px;overflow:auto;grid-template-columns:minmax(0,2.4fr) minmax(300px,1fr);align-content:start}
-.stage:fullscreen .tasks,.stage.fs .tasks{position:sticky;top:0;max-height:calc(100vh - 32px);overflow:auto}
-@media (max-width:1080px){.stage:fullscreen,.stage.fs{grid-template-columns:minmax(0,1fr)}.stage:fullscreen .tasks,.stage.fs .tasks{position:static;max-height:none}}
+.stage:fullscreen{background:var(--bg);padding:0 20px 16px;overflow:auto;grid-template-columns:minmax(0,2.4fr) minmax(300px,1fr);align-content:start}
+.stage.fs{position:fixed;inset:0;z-index:50;background:var(--bg);padding:0 20px 16px;overflow:auto;grid-template-columns:minmax(0,2.4fr) minmax(300px,1fr);align-content:start}
+.stage:fullscreen .tasks,.stage.fs .tasks{position:sticky;top:calc(var(--ph-h,96px) + 8px);max-height:calc(100vh - var(--ph-h,96px) - 24px);overflow:auto}
+/* 전체화면: 시간·제목·이전/다음 줄을 화면 맨 위에 고정 */
+.stage:fullscreen .phasehead,.stage.fs .phasehead{position:sticky;top:0;z-index:10;background:var(--bg);padding-block:12px 10px;box-shadow:0 1px 0 var(--line)}
+@media (max-width:1080px){.stage:fullscreen,.stage.fs{grid-template-columns:minmax(0,1fr)}.stage:fullscreen .tasks,.stage.fs .tasks{position:static;max-height:none;overflow:visible}}
 .maps{display:flex;flex-direction:column;gap:12px;min-width:0}
 figure{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 10px 8px;min-width:0}
 figcaption{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:0 4px 6px}
@@ -672,7 +674,14 @@ function renderHead(){
   document.getElementById('phTitle').textContent = p.title;
   document.getElementById('phSub').textContent = p.sub;
   updateNav();
+  setPhH();
 }
+// 고정된 머리 줄 높이 → 오른쪽 목록이 그 아래에서 시작하도록
+function setPhH(){
+  const st = document.querySelector('.stage'), ph = document.querySelector('.phasehead');
+  if(st && ph) st.style.setProperty('--ph-h', ph.offsetHeight + 'px');
+}
+window.addEventListener('resize', setPhH);
 function renderMaps(){ renderSite(); renderUpper(); }
 function renderAll(){ renderSteps(); renderHead(); renderMaps(); renderTasks(); renderPeople(); }
 function go(i){
@@ -765,6 +774,7 @@ function exitFs(){
   stage.classList.remove('fs'); fsChanged();
 }
 function fsChanged(){
+  requestAnimationFrame(setPhH);
   document.getElementById('fsBtn').textContent = isFs() ? '전체화면 닫기' : '전체화면';
 }
 document.addEventListener('fullscreenchange', fsChanged);
