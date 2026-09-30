@@ -551,7 +551,7 @@ function renderUpper(){
       it.slots.forEach(sl=>{
         const nm = nameOf(sl[0]) || '미정';
         const mine = person && tokens(nameOf(sl[0])).includes(person);
-        marks[sl[3]] = {top:sl[1]+' 하교', nm, id:it.srcId, hl, me:mine};
+        marks[sl[3]] = {top:sl[1]+' 하교', nm, id:it.srcId, hl, me:mine, oneLine:true};
       });
     } else {
       const nm = itemNames(it).join('·') || '미정';
@@ -585,9 +585,10 @@ function renderUpper(){
       // 한 줄: "3-1 최대인" / 특별실은 두 줄: "4-1 박동진" + "꿈꾸는 놀이터" (글자 크기는 다른 교실과 같게)
       const FS = 19*0.62;                                  // 모든 교실 공통 글자 크기
       const one = `${m.top} ${m.nm}`;
-      const lines = m.note ? [one, m.note] : (tw(one,FS) <= r[3]-6 ? [one] : [m.top, m.nm]);
+      // 하교 지도는 항상 한 줄(글자를 줄여 맞춤), 특별실은 두 줄
+      const lines = m.note ? [one, m.note] : (m.oneLine || tw(one,FS) <= r[3]-6) ? [one] : [m.top, m.nm];
       const widest = Math.max(...lines.map(l=>tw(l,1)));
-      const fs = Math.max(8, Math.min(FS, (r[3]-6)/widest));
+      const fs = Math.max(m.oneLine ? 6 : 8, Math.min(FS, (r[3]-6)/widest));
       const dark = m.hl || (m.me && !sel);
       const dim = sel ? !m.hl : (person && !m.me);
       const lh = fs*1.12, y0 = cy - (lines.length-1)*lh/2;
