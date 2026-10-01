@@ -16,6 +16,7 @@
   --r-cls:#FFE9A8; --r-sp:#DCEBFB; --r-adm:#E3F4E6; --r-kid:#FCE4EC; --r-wc:#E4E9EF; --r-hall:#F7F8F9; --r-aft:#FFD3B0;
   --r-stroke:#8C9A94; --r-text:#34423D;
   --tag-bg:#FFFFFF; --dim:.32;
+  --r-path:#F2E2C4; --r-path-line:#D9C39C; --site-bg:#FFFFFF;
   --day-pink:#FCE6EE; --day-pink-line:#F2B8CC; --help-fill:#E9E0FA; --help-line:#7A5CC2;
   --cal-sun:#FDECEC; --cal-sat:#E8F1FD; --cal-sun-ink:#C0392B; --cal-sat-ink:#2D6CC0;
   --s-guest:#FBE5D6; --s-att:#E4E6E3; --s-env:#E2F0D9; --s-data:#FFF2CC; --s-cls:#DEEBF7; --s-plan:#FFCCFF; --s-fix:#6F7A75; --s-fix-ink:#FFFFFF; --s-table:#C3C9C6;
@@ -30,6 +31,7 @@
     --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
     --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
     --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
+    --r-path:#4A3E2A; --r-path-line:#6E5E40; --site-bg:#151D1A;
     --day-pink:#3B2530; --day-pink-line:#6E3F52; --help-fill:#30284A; --help-line:#A68BE8;
     --cal-sun:#3A2326; --cal-sat:#1E2B3D; --cal-sun-ink:#F08A80; --cal-sat-ink:#86B4F0;
     --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
@@ -42,6 +44,7 @@
   --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
   --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
   --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
+  --r-path:#4A3E2A; --r-path-line:#6E5E40; --site-bg:#151D1A;
   --day-pink:#3B2530; --day-pink-line:#6E3F52; --help-fill:#30284A; --help-line:#A68BE8;
   --cal-sun:#3A2326; --cal-sat:#1E2B3D; --cal-sun-ink:#F08A80; --cal-sat-ink:#86B4F0;
   --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
@@ -297,6 +300,7 @@ svg text{font-family:var(--f-body)}
           <span><i style="background:var(--r-adm)"></i>행정·지원</span>
           <span><i style="background:var(--r-kid)"></i>유치원</span>
           <span><i style="background:var(--r-wc)"></i>화장실</span>
+          <span><i style="background:var(--r-path);border-color:var(--r-path-line)"></i>통로·현관·정원</span>
           <span><i class="rt"></i>참관자 동선</span>
           <span id="routeNote"></span>
         </div>
@@ -580,16 +584,16 @@ function roomLabel(r, fsMax){
   const cy = y+h/2, lh = fs*1.12, y0 = cy - (lines.length-1)*lh/2;
   return lines.map((l,i)=>`<text class="rlabel" x="${x+w/2}" y="${y0+i*lh}" font-size="${fs.toFixed(1)}">${esc(l)}</text>`).join('');
 }
-function roomRect(r, cls=''){
+function roomRect(r, cls='', fillVar=null){
   const [f,x,y,w,h,c] = r;
-  return `<rect class="room ${c==='hall'?'hall':''} ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" fill="var(${CATVAR[c]})"/>`;
+  return `<rect class="room ${c==='hall'?'hall':''} ${cls}" x="${x}" y="${y}" width="${w}" height="${h}" fill="var(${fillVar||CATVAR[c]})"/>`;
 }
 
 function siteBase(){
   let s = '';
   // 배경: 학교 부지, 도로, 아파트, 운동장
-  s += `<rect x="-205" y="668" width="1030" height="402" fill="var(--bg)"/>`;
-  s += `<rect x="-200" y="672" width="118" height="394" rx="8" fill="var(--ground)"/>`;
+  s += `<rect x="-205" y="668" width="1030" height="402" fill="var(--site-bg)"/>`;
+  s += `<rect x="-200" y="672" width="118" height="394" rx="8" fill="var(--site-bg)" stroke="var(--line)" stroke-width="1.2"/>`;
   // 아파트 동 (맨 위 칸은 후문 맞은편 진입로)
   for(let i=1;i<6;i++) s += `<rect x="-188" y="${700+i*58}" width="94" height="34" rx="3" fill="var(--apt)" stroke="var(--r-stroke)" stroke-width=".5"/>`;
   // 데시앙 아파트 진입로 (후문 맞은편)
@@ -601,7 +605,7 @@ function siteBase(){
   s += `<rect x="-72" y="668" width="84" height="402" fill="var(--road)"/>`;
   s += `<line x1="-30" y1="672" x2="-30" y2="1066" stroke="var(--paper)" stroke-width="2" stroke-dasharray="14 12"/>`;
   s += `<rect x="-48" y="1030" width="36" height="18" rx="4" fill="var(--road)"/><text class="site-sm" x="-30" y="1039" font-size="11">도로</text>`;
-  s += `<rect x="14" y="672" width="806" height="394" rx="10" fill="var(--ground)"/>`;
+  s += `<rect x="14" y="672" width="806" height="394" rx="10" fill="var(--site-bg)" stroke="var(--r-stroke)" stroke-width="1.2" stroke-dasharray="6 4"/>`;   // 학교 경계
   // 운동장
   s += `<rect x="585" y="880" width="228" height="176" rx="80" fill="var(--track)"/>`;
   s += `<rect x="606" y="900" width="186" height="136" rx="62" fill="var(--field)"/>`;
@@ -611,7 +615,7 @@ function siteBase(){
   for(let i=0;i<5;i++) s += `<line x1="730" y1="${740+i*18}" x2="760" y2="${740+i*18}" stroke="var(--paper)" stroke-width="1.5"/>`;
   s += `<text class="site-sm" x="786" y="776" font-size="11">급식실 쪽</text><text class="site-sm" x="786" y="790" font-size="11">주차장</text>`;
   // 건물(1층)
-  ROOMS.filter(r=>r[0]===1).forEach(r=>{ s += roomRect(r); });
+  ROOMS.filter(r=>r[0]===1).forEach(r=>{ s += roomRect(r, '', r[5]==='hall' ? '--r-path' : null); });
   ROOMS.filter(r=>r[0]===1).forEach(r=>{ s += roomLabel(r, 12); });
   LABELS.filter(l=>l[0]===1).forEach(l=>{
     const big = ['중동관','유치원','급식실','다목적실(초)'].includes(l[3]);
