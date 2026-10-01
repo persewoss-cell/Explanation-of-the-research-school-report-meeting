@@ -16,6 +16,7 @@
   --r-cls:#FFE9A8; --r-sp:#DCEBFB; --r-adm:#E3F4E6; --r-kid:#FCE4EC; --r-wc:#E4E9EF; --r-hall:#F7F8F9; --r-aft:#FFD3B0;
   --r-stroke:#8C9A94; --r-text:#34423D;
   --tag-bg:#FFFFFF; --dim:.32;
+  --s-guest:#FBE5D6; --s-att:#E4E6E3; --s-env:#E2F0D9; --s-data:#FFF2CC; --s-cls:#DEEBF7; --s-plan:#FFCCFF; --s-fix:#6F7A75; --s-fix-ink:#FFFFFF; --s-table:#C3C9C6;
   --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --f-disp:"Do Hyeon","IBM Plex Sans KR","Malgun Gothic",sans-serif;
 }
@@ -27,6 +28,7 @@
     --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
     --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
     --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
+    --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
   }
 }
 :root[data-theme="dark"]{
@@ -36,6 +38,7 @@
   --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
   --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
   --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
+  --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:18px 40px}
@@ -58,7 +61,7 @@ h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,3.2vw,38px);li
 .ghost.danger{border-color:var(--route);color:var(--route)}
 
 /* steps */
-.steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:6px}
+.steps{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:6px}
 .step{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 10px;position:relative}
 .step .t{font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);font-weight:500}
 .step .n{font-family:var(--f-disp);font-size:18px;line-height:1.2}
@@ -103,6 +106,27 @@ svg.map.dragging .tag{cursor:grabbing}
 .zoomctl .zh{font-size:12px;color:var(--muted);margin-right:6px}
 svg.map{display:block;width:100%;height:auto}
 svg text{font-family:var(--f-body)}
+.seat{stroke:var(--r-stroke);stroke-width:.8}
+.seat-t{fill:var(--r-text);text-anchor:middle;dominant-baseline:central;pointer-events:none;font-weight:600}
+.seat-t.inv{fill:var(--s-fix-ink)}
+.cal{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:2px}
+.cal .dow{font-size:12px;color:var(--muted);text-align:center;font-weight:600}
+.cal .day{background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:70px;padding:5px 6px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal .day.out{opacity:.4}
+.cal .day .dn{font-size:12.5px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums}
+.cal .day.today .dn{color:var(--accent)}
+.cal .day.event{background:var(--accent);border-color:var(--accent)}
+.cal .day.event .dn,.cal .day.event .ev{color:var(--accent-ink)}
+.cal .ev{font-family:var(--f-disp);font-size:15px;line-height:1.2}
+.cal .day.has-sel{border-color:#1B2723;box-shadow:0 0 0 2px var(--mark)}
+.calchip{display:flex;gap:5px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:3px 5px;font-size:12px;line-height:1.3;color:var(--ink);cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.calchip b{flex:none;min-width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:11px}
+.calchip:hover{border-color:var(--accent)}
+.calchip.sel{background:var(--mark);border-color:#1B2723;color:#1B2723;font-weight:600}
+.calchip.sel b{background:#1B2723;color:#F3C546}
+.calchip.me{background:var(--mark-soft)}
+.calchip.dim{opacity:.35}
+@media (max-width:720px){.cal{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.calchip span{display:none}}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);padding:6px 4px 0}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--r-stroke)}
 .legend .rt{width:18px;height:0;border:none;border-top:2.5px dashed var(--route);border-radius:0;vertical-align:3px}
@@ -203,7 +227,7 @@ svg text{font-family:var(--f-body)}
   .people{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:720px){
-  .steps{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .steps{grid-template-columns:repeat(4,minmax(0,1fr))}
   .step .n{font-size:16px}
   .savebox{align-items:flex-start}
   .savebox .row{justify-content:flex-start}
@@ -217,7 +241,7 @@ svg text{font-family:var(--f-body)}
   <header class="top">
     <div>
       <p class="eyebrow">2026학년도 학교자율시간 설계·운영 연구학교</p>
-      <h1>수업 나눔의 날(보고회) 당일 역할 배치도</h1>
+      <h1>수업 나눔의 날(보고회) 역할 및 배치도</h1>
       <p class="meta"><b>2026. 10. 27.(화)</b> 13:40 – 16:10 · 광양중동초등학교 · 수업 공개 각 교실 · 보고회 <b>중동관</b></p>
     </div>
     <div class="savebox">
@@ -242,7 +266,23 @@ svg text{font-family:var(--f-body)}
     </div>
 
     <div class="maps">
-      <figure>
+      <figure id="calFig" hidden>
+        <figcaption><span><b>사전 준비 일정표</b> · 2026년 10월 (평일)</span><span>칸의 번호를 누르면 오른쪽 목록과 함께 표시됩니다</span></figcaption>
+        <div class="cal" id="cal"></div>
+      </figure>
+      <figure id="hallFig" hidden>
+        <figcaption><span><b>중동관 좌석 배치도</b> · 운영 보고회장</span><span class="zoomctl" data-map="hall"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_hall">100%</span></span></figcaption>
+        <div class="svgbox"><svg class="map" id="hall" viewBox="-10 -70 1410 770" role="img" aria-label="중동관 좌석 배치도"></svg></div>
+        <div class="legend">
+          <span><i style="background:var(--s-guest)"></i>내빈</span>
+          <span><i style="background:var(--s-plan)"></i>기획분과</span>
+          <span><i style="background:var(--s-cls)"></i>수업분과</span>
+          <span><i style="background:var(--s-data)"></i>자료분과</span>
+          <span><i style="background:var(--s-env)"></i>환경분과</span>
+          <span><i style="background:var(--s-att)"></i>참석자</span>
+        </div>
+      </figure>
+      <figure id="siteFig">
         <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_site">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="site" viewBox="-205 668 1030 402" role="img" aria-label="1층 배치도와 학교 주변"></svg></div>
         <div class="legend">
@@ -277,6 +317,7 @@ svg text{font-family:var(--f-body)}
 <script>
 const ROOMS=[[1,628.5,783.5,11.8,44.0,"hall",""],[1,530.0,782.0,61.4,43.1,"sp","버스킹 무대"],[1,37.0,884.4,41.7,32.1,"hall",""],[1,56.7,840.9,22.0,44.1,"hall",""],[1,56.7,824.5,656.7,17.0,"hall",""],[1,141.8,796.0,52.2,14.1,"hall",""],[1,141.8,809.4,140.3,15.7,"hall",""],[1,229.0,782.1,53.0,28.0,"hall",""],[1,281.4,840.9,24.0,75.6,"hall",""],[1,381.0,742.0,32.2,40.7,"hall",""],[1,381.0,840.9,112.5,75.6,"hall",""],[1,381.0,782.1,120.4,43.1,"hall",""],[1,625.5,840.9,87.8,16.7,"hall",""],[4,37.0,262.5,41.7,26.5,"hall",""],[4,57.7,215.3,20.9,47.8,"hall",""],[4,57.7,199.0,655.6,17.0,"hall",""],[4,141.8,118.8,24.6,56.9,"hall",""],[4,141.8,175.1,108.5,24.6,"hall",""],[4,278.7,215.3,17.6,73.7,"hall",""],[4,381.0,118.8,32.2,56.9,"hall",""],[4,381.0,175.1,120.4,24.6,"hall",""],[4,500.8,215.3,54.7,16.7,"hall",""],[4,625.5,137.4,16.3,38.3,"hall",""],[4,630.0,175.1,11.8,24.6,"hall",""],[4,630.0,215.3,83.3,16.7,"hall",""],[3,37.0,464.2,41.7,24.4,"hall",""],[3,57.7,427.5,20.9,37.3,"hall",""],[3,57.7,411.5,655.6,16.7,"hall",""],[3,141.8,314.8,24.6,68.2,"hall",""],[3,141.8,382.4,108.5,29.7,"hall",""],[3,381.0,314.8,32.2,68.2,"hall",""],[3,381.0,382.4,120.4,29.7,"hall",""],[3,500.8,427.5,54.7,17.0,"hall",""],[3,625.5,333.4,16.3,49.6,"hall",""],[3,630.0,382.4,11.8,29.7,"hall",""],[3,630.0,427.5,83.3,17.0,"hall",""],[2,37.0,671.6,41.7,24.3,"hall",""],[2,57.7,627.8,20.9,44.4,"hall",""],[2,57.7,611.5,655.6,16.9,"hall",""],[2,141.8,511.7,24.6,57.1,"hall",""],[2,141.8,568.2,108.5,44.0,"hall",""],[2,304.8,627.8,12.9,30.6,"hall",""],[2,381.0,511.7,32.2,57.1,"hall",""],[2,381.0,568.2,120.4,44.0,"hall",""],[2,500.8,627.8,54.7,16.8,"hall",""],[2,625.5,530.8,16.3,38.0,"hall",""],[2,630.0,568.2,11.8,44.0,"hall",""],[2,630.0,627.8,83.3,16.8,"hall",""],[4,57.7,175.1,42.9,24.6,"adm","늘봄 지원실"],[3,57.7,382.4,42.9,29.7,"adm","3 교재 연구실"],[2,57.7,568.2,42.9,44.0,"kid","상담실 (유)"],[1,57.7,782.1,46.7,43.1,"adm","창고"],[4,78.0,215.3,63.6,26.2,"aft","과학실험 (오카리나)"],[4,78.0,240.9,63.6,22.2,"aft","창의공예실"],[4,78.0,262.5,63.6,26.5,"aft","국악실 (한자)"],[3,78.0,427.5,63.6,17.0,"kid","음악실(유)"],[3,78.0,445.2,63.6,19.6,"kid","자료실(유)"],[3,78.0,464.2,63.6,24.4,"kid","교사실(유)"],[2,78.0,627.8,63.6,23.0,"kid","향기가득반"],[2,78.0,650.2,63.6,22.0,"kid","미소가득반"],[2,78.0,671.6,63.6,24.3,"kid","도서실(유)"],[1,78.0,840.9,63.6,16.7,"kid","희망가득반"],[1,78.0,856.9,63.6,14.6,"wc","화장실"],[1,78.0,870.9,63.6,14.1,"kid","기쁨가득반"],[1,78.0,884.4,63.6,14.5,"adm","원감실"],[1,78.0,898.2,63.6,18.2,"adm","당직실"],[4,100.0,175.1,41.6,24.6,"wc","화장실"],[3,100.0,382.4,41.6,29.7,"wc","화장실"],[2,100.0,568.2,41.6,44.0,"wc","화장실"],[1,103.8,782.1,37.8,43.1,"wc","화장실"],[1,141.8,782.1,52.2,14.5,"sp",""],[1,141.8,720.6,108.5,62.1,"sp",""],[4,165.7,118.8,84.6,19.2,"sp","학습지도실"],[4,165.7,137.4,84.6,19.7,"cls","5-2"],[4,165.7,156.5,84.6,19.2,"cls","5-1"],[3,165.7,314.8,84.6,19.2,"sp","학습지도실"],[3,165.7,333.4,84.6,21.0,"cls","3-2"],[3,165.7,353.8,84.6,29.3,"cls","3-1"],[2,165.7,511.7,84.6,19.7,"kid","어울림방"],[2,165.7,530.8,84.6,19.1,"kid","미래놀이터(유)"],[2,165.7,549.2,84.6,19.6,"kid","보건실(유)"],[1,194.5,782.1,35.2,28.0,"adm","엘리 베이터"],[4,250.9,175.1,89.8,24.6,"sp","무한상상실"],[3,250.9,382.4,89.8,29.7,"sp","과학실"],[2,250.9,568.2,89.8,44.0,"sp","2030교실"],[1,281.4,782.1,36.3,43.1,"adm","인쇄실"],[4,295.7,215.3,67.7,26.2,"aft","통기타실"],[4,295.7,240.9,67.7,22.2,"aft","수학교실"],[4,295.7,262.5,67.7,26.5,"aft","영어실"],[3,304.8,427.5,75.8,61.0,"sp","꿈꾸는 도서관"],[2,304.8,657.7,75.8,38.2,"sp","시청각실"],[1,305.6,840.9,75.0,25.5,"adm","교무실"],[1,305.6,865.8,75.0,25.5,"adm","교장실"],[1,305.6,890.6,75.0,25.9,"adm","행정실"],[2,317.1,627.8,63.5,30.6,"adm","방송실"],[1,317.1,782.1,33.7,43.1,"adm","전산실"],[4,340.0,175.1,40.6,24.6,"wc","화장실"],[3,340.0,382.4,40.6,29.7,"wc","화장실"],[2,340.0,568.2,40.6,44.0,"wc","화장실"],[1,350.2,782.1,30.4,43.1,"wc","화장실"],[1,381.0,720.6,32.2,22.0,"adm","여직원 휴게실"],[4,413.7,118.8,87.7,19.2,"sp","학생자치회실"],[4,413.7,137.4,87.7,19.7,"cls","6-2"],[4,413.7,156.5,87.7,19.2,"cls","6-1"],[3,413.7,314.8,87.7,19.2,"sp","프로젝트학습실"],[3,413.7,333.4,87.7,21.0,"cls","4-2"],[3,413.7,353.8,87.7,29.3,"cls","4-1"],[2,413.7,511.7,87.7,19.7,"cls","2-1"],[2,413.7,530.8,87.7,19.1,"cls","1-1"],[2,413.7,549.2,87.7,19.6,"sp","학습도움실1"],[1,413.7,720.6,87.7,22.0,"adm","목련나눔터"],[1,413.7,742.0,87.7,19.7,"adm","상담실"],[1,413.7,761.0,87.7,21.7,"adm","보건실"],[1,492.8,840.9,62.6,25.5,"adm","체육교담실"],[4,500.8,175.1,43.1,24.6,"adm","5~6 교재 연구실"],[3,500.8,382.4,91.6,29.7,"sp","컴퓨터실"],[2,500.8,568.2,91.6,44.0,"sp","꿈꾸는놀이터"],[1,500.8,782.1,28.0,43.1,"adm","문서고"],[4,543.2,175.1,39.4,24.6,"aft","음악실 바이올린"],[4,582.0,175.1,47.5,24.6,"aft","미술실"],[3,592.8,382.4,36.7,29.7,"adm","4 교재 연구실"],[2,592.8,568.2,36.7,44.0,"adm","1~2 교재 연구실"],[1,592.8,782.1,33.4,43.1,"adm","보관실"],[4,625.5,118.8,16.3,19.2,"adm","음악 교구"],[3,625.5,314.8,87.8,19.2,"sp","영어체험실"],[2,625.5,511.7,16.3,19.7,"adm","준비 실"],[1,625.5,720.6,87.8,62.1,"adm",""],[1,642.4,782.1,70.9,43.1,"adm",""],[4,642.4,118.8,70.9,19.2,"aft","첼로"],[4,642.4,137.4,70.9,19.7,"aft","방송댄스"],[4,642.4,156.5,70.9,19.2,"aft","피아노"],[4,642.4,175.1,70.9,24.6,"wc","화장실"],[3,642.4,333.4,70.9,21.0,"sp","중국어교실"],[3,642.4,353.8,70.9,15.9,"adm","남직원휴게실"],[3,642.4,369.0,70.9,14.1,"adm","탈의실"],[3,642.4,382.4,70.9,29.7,"wc","화장실"],[2,642.4,511.7,70.9,19.7,"sp","돌봄실2"],[2,642.4,530.8,70.9,19.1,"sp","돌봄실1"],[2,642.4,549.2,70.9,19.6,"sp","학습도움실2"],[2,642.4,568.2,70.9,44.0,"wc","화장실"],[1,38.6,989.9,180.8,62.1,"sp",""],[1,233.4,989.9,260.1,62.1,"kid",""],[1,255.0,720.7,121.0,58.4,"sp","꿈꾸는 마당"],[1,506.4,722.1,115.7,55.5,"hall",""],[2,193.1,570.1,35.2,28.0,"adm","엘리 베이터"],[3,192.6,383.3,35.2,28.0,"adm","엘리 베이터"],[4,193.1,176.3,35.2,22.7,"adm","엘리 베이터"]];
 const LABELS=[[1,196.1,750.6,"다목적실(초)"],[1,669.5,752.4,"급식실"],[4,240.0,187.6,"계단"],[4,489.9,187.6,"계단"],[4,677.5,215.8,"계단"],[4,48.7,270.9,"계"],[4,48.7,280.9,"단"],[3,240.0,397.6,"계단"],[3,489.9,397.6,"계단"],[3,677.5,428.4,"계단"],[3,48.7,471.8,"계"],[3,48.7,481.8,"단"],[2,240.0,590.5,"계단"],[2,490.0,590.5,"계단"],[2,677.5,628.6,"계단"],[2,48.7,679.1,"계"],[2,48.7,689.4,"단"],[1,240.0,804.4,"계단"],[1,266.4,804.4,"필로티"],[1,489.9,804.4,"계단"],[1,68.0,833.8,"현관"],[1,239.6,833.8,"현관"],[1,292.5,833.8,"현관"],[1,370.5,833.8,"현관"],[1,512.2,833.8,"현관"],[1,544.5,833.8,"현관"],[1,603.5,833.8,"현관"],[1,677.5,841.9,"계단"],[1,442.9,854.4,"중앙 현관"],[1,48.7,896.1,"계"],[1,48.7,906.4,"단"],[1,68.0,901.3,"현관"],[1,292.8,904.4,"현관"],[1,126.5,1021.4,"중동관"],[1,362.9,1021.4,"유치원"],[1,563.2,751.4,"정원"]];
+const SEATS=[[43.7,32.5,1104.8,66.0,"fix","단상"],[241.4,186.2,47.2,35.6,"env",""],[186.7,186.2,47.2,35.6,"env",""],[99.0,186.2,47.2,35.6,"att",""],[690.5,186.2,47.2,35.6,"cls","3"],[517.6,186.2,47.2,35.6,"data","분과|대표"],[462.8,186.2,47.2,35.6,"data","분과|대표"],[408.0,186.2,47.2,35.6,"data",""],[353.2,186.2,47.2,35.6,"data",""],[298.5,186.2,47.2,35.6,"env","분과|대표"],[241.4,230.9,47.2,35.6,"env",""],[186.7,230.9,47.2,35.6,"env",""],[99.0,230.9,47.2,35.6,"att",""],[690.5,230.9,47.2,35.6,"cls","3"],[517.6,230.9,47.2,35.6,"data",""],[462.8,230.9,47.2,35.6,"data",""],[408.0,230.9,47.2,35.6,"data",""],[353.2,230.9,47.2,35.6,"data",""],[298.5,230.9,47.2,35.6,"env",""],[99.0,275.6,47.2,35.6,"att",""],[99.0,320.3,47.2,35.6,"att",""],[242.2,365.0,47.2,35.6,"att",""],[187.4,365.0,47.2,35.6,"att",""],[99.0,365.0,47.2,35.6,"att",""],[463.5,365.0,47.2,35.6,"att",""],[408.8,365.0,47.2,35.6,"att",""],[354.0,365.0,47.2,35.6,"att",""],[299.2,365.0,47.2,35.6,"att",""],[242.2,409.7,47.2,35.6,"att",""],[187.4,409.7,47.2,35.6,"att",""],[99.0,409.7,47.2,35.6,"att",""],[463.5,409.7,47.2,35.6,"att",""],[408.8,409.7,47.2,35.6,"att",""],[354.0,409.7,47.2,35.6,"att",""],[299.2,409.7,47.2,35.6,"att",""],[242.2,454.4,47.2,35.6,"att",""],[187.4,454.4,47.2,35.6,"att",""],[99.0,454.4,47.2,35.6,"att",""],[463.5,454.4,47.2,35.6,"att",""],[408.8,454.4,47.2,35.6,"att",""],[354.0,454.4,47.2,35.6,"att",""],[299.2,454.4,47.2,35.6,"att",""],[242.2,499.1,47.2,35.6,"att",""],[187.4,499.1,47.2,35.6,"att",""],[99.0,499.1,47.2,35.6,"att",""],[463.5,499.1,47.2,35.6,"att",""],[408.8,499.1,47.2,35.6,"att",""],[354.0,499.1,47.2,35.6,"att",""],[299.2,499.1,47.2,35.6,"att",""],[242.2,543.8,47.2,35.6,"att",""],[187.4,543.8,47.2,35.6,"att",""],[99.0,543.8,47.2,35.6,"att",""],[463.5,543.8,47.2,35.6,"att",""],[408.8,543.8,47.2,35.6,"att",""],[354.0,543.8,47.2,35.6,"att",""],[299.2,543.8,47.2,35.6,"att",""],[1100.6,443.7,85.0,25.4,"guest","협의체 위원장"],[1100.6,480.4,85.0,25.4,"guest","협의체위원"],[1052.8,186.2,34.2,398.3,"table","테|이|블"],[44.2,186.2,47.2,35.6,"att",""],[44.2,230.9,47.2,35.6,"att",""],[44.2,275.6,47.2,35.6,"att",""],[44.2,320.3,47.2,35.6,"att",""],[44.2,365.0,47.2,35.6,"att",""],[44.2,409.7,47.2,35.6,"att",""],[44.2,454.4,47.2,35.6,"att",""],[44.2,499.1,47.2,35.6,"att",""],[44.2,543.8,47.2,35.6,"att",""],[242.2,320.3,47.2,35.6,"att",""],[187.4,320.3,47.2,35.6,"att",""],[463.5,320.3,47.2,35.6,"att",""],[408.8,320.3,47.2,35.6,"att",""],[354.0,320.3,47.2,35.6,"att",""],[299.2,320.3,47.2,35.6,"att",""],[910.8,186.2,47.2,35.6,"plan","교무"],[856.4,186.2,47.2,35.6,"cls","6"],[801.6,186.2,47.2,35.6,"cls","5"],[746.8,186.2,47.2,35.6,"cls","4"],[910.8,230.9,47.2,35.6,"plan","유연구"],[856.4,230.9,47.2,35.6,"cls","6"],[801.6,230.9,47.2,35.6,"cls","5"],[746.8,230.9,47.2,35.6,"cls","4"],[967.8,186.2,47.2,35.6,"plan","원감"],[967.8,230.9,47.2,35.6,"plan","연구"],[1100.6,517.2,85.0,25.4,"guest","협의체위원"],[1100.6,554.0,85.0,25.4,"guest","협의체위원"],[1100.6,259.8,85.0,25.4,"guest","운영위원장"],[1100.6,296.6,85.0,25.4,"guest","학부모회장"],[1100.6,370.1,85.0,25.4,"guest","지도위원"],[1100.6,406.9,85.0,25.4,"guest","지도위원"],[1100.6,333.3,85.0,25.4,"guest","지도위원"],[636.4,186.2,47.2,35.6,"cls","1"],[636.4,230.9,47.2,35.6,"cls","2"],[519.8,365.0,47.2,35.6,"att",""],[519.8,409.7,47.2,35.6,"att",""],[519.8,454.4,47.2,35.6,"att",""],[519.8,499.1,47.2,35.6,"att",""],[519.8,543.8,47.2,35.6,"att",""],[519.8,320.3,47.2,35.6,"att",""],[690.2,365.0,47.2,35.6,"att",""],[635.4,365.0,47.2,35.6,"att",""],[911.5,365.0,47.2,35.6,"att",""],[856.8,365.0,47.2,35.6,"att",""],[802.0,365.0,47.2,35.6,"att",""],[747.2,365.0,47.2,35.6,"att",""],[690.2,409.7,47.2,35.6,"att",""],[635.4,409.7,47.2,35.6,"att",""],[911.5,409.7,47.2,35.6,"att",""],[856.8,409.7,47.2,35.6,"att",""],[802.0,409.7,47.2,35.6,"att",""],[747.2,409.7,47.2,35.6,"att",""],[690.2,454.4,47.2,35.6,"att",""],[635.4,454.4,47.2,35.6,"att",""],[911.5,454.4,47.2,35.6,"att",""],[856.8,454.4,47.2,35.6,"att",""],[802.0,454.4,47.2,35.6,"att",""],[747.2,454.4,47.2,35.6,"att",""],[690.2,499.1,47.2,35.6,"att",""],[635.4,499.1,47.2,35.6,"att",""],[911.5,499.1,47.2,35.6,"att",""],[856.8,499.1,47.2,35.6,"att",""],[802.0,499.1,47.2,35.6,"att",""],[747.2,499.1,47.2,35.6,"att",""],[690.2,543.8,47.2,35.6,"att",""],[635.4,543.8,47.2,35.6,"att",""],[911.5,543.8,47.2,35.6,"att",""],[856.8,543.8,47.2,35.6,"att",""],[802.0,543.8,47.2,35.6,"att",""],[747.2,543.8,47.2,35.6,"att",""],[690.2,320.3,47.2,35.6,"att",""],[635.4,320.3,47.2,35.6,"att",""],[911.5,320.3,47.2,35.6,"att",""],[856.8,320.3,47.2,35.6,"att",""],[802.0,320.3,47.2,35.6,"att",""],[747.2,320.3,47.2,35.6,"att",""],[967.8,365.0,47.2,35.6,"att",""],[967.8,409.7,47.2,35.6,"att",""],[967.8,454.4,47.2,35.6,"att",""],[967.8,499.1,47.2,35.6,"att",""],[967.8,543.8,47.2,35.6,"att",""],[967.8,320.3,47.2,35.6,"att",""],[1100.6,186.2,85.0,25.4,"plan","교장"],[1100.6,223.0,85.0,25.4,"plan","교감"],[582.0,482.4,40.7,35.6,"fix","영상|촬영"],[1100.6,121.6,73.2,35.6,"fix","사회"],[499.4,663.4,194.8,15.1,"fix","출입구"],[433.1,613.0,62.8,63.8,"fix","등록QR|생수"]];
 
 
 /* ---------- 장소 (1층 배치도 좌표) ---------- */
@@ -293,26 +334,71 @@ const LOC = {
   hall:       {x:128, y:1022,tx:128, ty:1030,name:'중동관', stack:-1, inside:true},
 };
 
+/* ---------- 중동관 좌석 배치도 위치 (PPT 좌표) ---------- */
+const HLOC = {
+  opening:  {anchors:[[1137,140],[1188,66]], tx:1300, ty:100, name:'사회석 · 단상 옆(보조)'},
+  principal:{anchors:[[1143,198],[1188,66]], tx:1300, ty:200, name:'교장석 · 단상 옆(마이크)'},
+  photo:    {anchors:[[602,500]], tx:730, ty:630, name:'영상 촬영석'},
+  podium:   {anchors:[[596,80]], tx:596, ty:-35, name:'단상'},
+  qa:       {anchors:[[321,204],[486,204],[541,204],[1143,235]], tx:430, ty:142, name:'분과 대표석 · 교감석'},
+  mic:      {anchors:[[166,430],[601,420]], tx:290, ty:630, name:'좌석 사이 통로'},
+  council:  {anchors:[[1186,456],[1186,492],[1186,529],[1186,566]], tx:1310, ty:511, name:'협의체 위원석'},
+  door:     {anchors:[[596,676]], tx:860, ty:640, name:'중동관 출입구'},
+  doorVip:  {anchors:[[690,676]], tx:1130, ty:640, name:'중동관 출입구 (배웅)'},
+  hallAll:  {anchors:[[300,440],[800,440]], tx:250, ty:640, name:'중동관 전체'},
+};
+
 /* ---------- 위층 교실 ---------- */
 const UROOM = {
   '1-1':[2,'1-1'],'2-1':[2,'2-1'],'3-1':[3,'3-1'],'3-2':[3,'3-2'],'4-1':[3,'4-1'],'4-2':[3,'4-2'],
   '5-1':[4,'5-1'],'5-2':[4,'5-2'],'6-1':[4,'6-1'],'6-2':[4,'6-2'],
-  '꿈꾸는놀이터':[2,'꿈꾸는놀이터'],'무한상상실':[4,'무한상상실'],'2030교실':[2,'2030교실'],'학습도움실2':[2,'학습도움실2'],
+  '꿈꾸는놀이터':[2,'꿈꾸는놀이터'],'무한상상실':[4,'무한상상실'],'2030교실':[2,'2030교실'],'컴퓨터실':[3,'컴퓨터실'],'학습도움실2':[2,'학습도움실2'],
 };
 const HOMEROOMS = ['1-1','2-1','3-1','3-2','4-1','4-2','5-1','5-2','6-1','6-2'];
 // 특별실은 교실 칸에 이름을 함께 표기
-const SPECIAL_NAME = {'꿈꾸는놀이터':'꿈꾸는 놀이터','무한상상실':'무한상상실','2030교실':'2030 교실'};
+const SPECIAL_NAME = {'꿈꾸는놀이터':'꿈꾸는 놀이터','무한상상실':'무한상상실','2030교실':'2030 교실','컴퓨터실':'컴퓨터실'};
 
 /* ---------- 시간대별 역할 (계획서 기준) ---------- */
+/* ---------- 사전 준비 (계획서 '추진 담당 및 기한', 보고회 전날까지) ---------- */
+const WD = ['일','월','화','수','목','금','토'];
+const fmtDue = md => { const [m,d] = md.split('-').map(Number); return `${m}. ${d}.(${WD[new Date(2026, m-1, d).getDay()]})`; };
+const PREP = [
+  // [번호 id, 기한, 내용, 담당, 설명, 준비물·비고]
+  ['z1','10-01','연구학교 보고회 일정 및 방식 확정',['기획분과']],
+  ['z2','10-07','연구학교 보고회 영상 제작 완료',['자료분과']],
+  ['z3','10-08','연구학교 보고서 최종 완성 및 송부',['연구'],'지도위원 및 협의체 위원에게 송부'],
+  ['z4','10-12','중동관 방송 시설 및 작동 1차 점검',['행정실','문선영']],
+  ['z5','10-13','수업 나눔의 날 참관 안내 자료 제작',['연구','정보'],'','리플렛, QR코드'],
+  ['z6','10-14','복도 환경 구성 완료',['환경분과','담임']],
+  ['z7','10-15','연구학교 보고회 발표 자료 완성',['연구']],
+  ['z8','10-16','보고회 참관자 명단 및 질의 내용 수합, 요목화',['기획분과','수업분과']],
+  ['z9','10-19','연구학교 운영 보고회 학부모 안내장 발송',['교무']],
+  ['z10','10-19','연구학교 발표 자료 교직원 공유',['연구']],
+  ['z11','10-19','내빈 및 협의체 위원 제본 자료 준비',['교무실']],
+  ['z12','10-19','중동관 및 교문 플래카드 설치',['연구','업체']],
+  ['z13','10-20','연구학교 보고서 최종 완성본 누리집 탑재',['연구']],
+  ['z14','10-20','연구학교 운영 관련 질의사항 답변 준비',['부장','분과대표']],
+  ['z15','10-21','교실 및 복도 대청소',['전교직원'],'청소 안내 참고'],
+  ['z16','10-21','데시앙 아파트 주차 협조 요청',['교무실']],
+  ['z17','10-22','연구학교 운영 보고회 최종 점검',['기획분과'],'보고서, 플랫폼, 자료 등'],
+  ['z18','10-23','중동관 방송 시설 및 작동 최종 점검',['행정실','문선영']],
+  ['z19','10-23','중동관(체육관) 청소',['전교직원']],
+  ['z20','10-26','연구학교 운영 보고회 식장 구성 및 준비 완료',['전교직원'],'본부 행정실, 오전 · 중동관 의자 배치(업체) · 내빈 좌석 및 명패, 자료 배치 · 출입구 손님 맞이 테이블 및 물 세팅 · 학년 및 분과 구분 집게형 쇼클립 설치 · 등록 및 안내 QR코드 설치','명패, 집게형 쇼클립, 안내 스탠드, 생수'],
+].map(([id,due,task,who,detail,gear])=>({id, due, time:fmtDue(due), task, detail:detail||undefined, gear:gear||undefined, loc:'cal',
+  slots: who.map((n,j)=>[id+'abcd'[j],'',n])}));
+
 const PHASES = [
+ { id:'p0', time:'10. 1. – 10. 26.', title:'사전 준비', step:'사전 준비', map:'cal',
+   sub:'보고회 전날까지 마쳐야 할 준비입니다. 기한 순서로 번호를 붙였고, 왼쪽 일정표에서 날짜별로 볼 수 있습니다.',
+   items: PREP },
  { id:'p1', time:'08:30 – 13:10', title:'오전 준비', step:'오전 준비',
    sub:'출근, 교실 환경 점검, 보고회장(중동관) 준비',
    upper:true,
    items:[
     {id:'a1', time:'08:30', task:'교직원 출근 시 학교 주변에 주차', loc:null, slots:[['a1a','','전교직원']]},
-    {id:'a2', time:'오전', task:'학년(학급) 교실 환경 구축 확인 및 청결 유지', detail:'특별실에서 수업하는 반은 특별실도 함께 확인합니다 (4-1 꿈꾸는 놀이터, 5-1 무한상상실, 6-1 2030 교실)', where:'각 학급 교실 + 수업 특별실 (2~4층)', loc:'U',
-     uroom:[...HOMEROOMS,'꿈꾸는놀이터','무한상상실','2030교실'],
-     roomTop:{'꿈꾸는놀이터':'4-1','무한상상실':'5-1','2030교실':'6-1'},
+    {id:'a2', time:'오전', task:'학년(학급) 교실 환경 구축 확인 및 청결 유지', detail:'특별실에서 수업하는 반은 특별실도 함께 확인합니다 (4-1 꿈꾸는 놀이터, 5-1 무한상상실, 6-1 2030 교실, 6-2 컴퓨터실)', where:'각 학급 교실 + 수업 특별실 (2~4층)', loc:'U',
+     uroom:[...HOMEROOMS,'꿈꾸는놀이터','무한상상실','2030교실','컴퓨터실'],
+     roomTop:{'꿈꾸는놀이터':'4-1','무한상상실':'5-1','2030교실':'6-1','컴퓨터실':'6-2'},
      slots:[['a2a','','담임']]},
     {id:'a3', time:'13:10', task:'보고회장 준비', detail:'영상, 국민의례, 보고 파일 등 점검', loc:'hall', slots:[['a3a','','교무'],['a3b','','연구']]},
    ]},
@@ -342,7 +428,7 @@ const PHASES = [
     {id:'c7', short:'5-1', task:'5-1 지구마을 히어로', detail:'1. 내가 만드는 L-콘텐츠, 세계로 나아가다!(8/32) · L-콘텐츠 캐릭터 홍보 상품 기획서 작성하기', where:'무한상상실 (4층)', loc:'U', uroom:['무한상상실'], slots:[['c7a','','김대성']]},
     {id:'c8', short:'5-2', task:'5-2 지구마을 히어로', detail:'1. 내가 만드는 L-콘텐츠, 세계로 나아가다!(7/32) · L-콘텐츠의 특징을 담은 캐릭터 제작하기', where:'5-2 교실 (4층)', loc:'U', uroom:['5-2'], slots:[['c8a','','손제민']]},
     {id:'c9', short:'6-1', task:'6-1 지구마을 탐험대', detail:'1. Green! 데이터 탐험대(13/32) · 기후변화의 흐름과 영향을 해석하기', where:'2030 교실 (2층)', loc:'U', uroom:['2030교실'], slots:[['c9a','','강지훈']]},
-    {id:'c10',short:'6-2', task:'6-2 지구마을 탐험대', detail:'1. Green! 데이터 탐험대(15/32) · 인포그래픽·보고서 만들기', where:'6-2 교실 (4층)', loc:'U', uroom:['6-2'], slots:[['c10a','','문선영']]},
+    {id:'c10',short:'6-2', task:'6-2 지구마을 탐험대', detail:'1. Green! 데이터 탐험대(15/32) · 인포그래픽·보고서 만들기', where:'컴퓨터실 (3층)', loc:'U', uroom:['컴퓨터실'], slots:[['c10a','','문선영']]},
     {id:'c11',short:'도움반', task:'도움반 학생 특별 프로그램', where:'학습도움실2 · 도움2반 (2층)', loc:'U', uroom:['학습도움실2'], slots:[['c11a','','박동혁'],['c11b','','오순정']]},
     {group:'1층 · 14:10까지 계속'},
     {ref:'b4'},{ref:'b5'},{ref:'b3'},{ref:'b1'},{ref:'b6'},
@@ -357,33 +443,33 @@ const PHASES = [
     {id:'d3', time:'14:30 – 15:00', task:'중동관 입구 안내 및 QR 등록 도움', gear:'생수', loc:'hallDoor', slots:[['d3a','','오진희'],['d3b','','지용운']]},
     {id:'d4', time:'14:40 – 15:00', task:'식전 영상 상영', detail:'가을 음악 영상 (등록 시간 중)', loc:'hall', slots:[['d4a','','교무']]},
     {group:'학생 하교 지도 · 14:40 – 15:00', note:'방과후 없음, 돌봄 있음 · 교내와 운동장에서 놀지 않도록 지도 · 조용히 교문까지 이동하여 하교 · 지도 후 중동관 집결'},
-    {id:'d5', time:'14:40 – 15:00', task:'학급별 하교 지도', detail:'특별실에서 수업한 반은 수업한 특별실에서 하교 지도 (4-1 꿈꾸는 놀이터, 5-1 무한상상실, 6-1 2030 교실)', where:'수업한 교실 → 교문', loc:'U', perSlotRoom:true,
+    {id:'d5', time:'14:40 – 15:00', task:'학급별 하교 지도', detail:'특별실에서 수업한 반은 수업한 특별실에서 하교 지도 (4-1 꿈꾸는 놀이터, 5-1 무한상상실, 6-1 2030 교실, 6-2 컴퓨터실)', where:'수업한 교실 → 교문', loc:'U', perSlotRoom:true,
      slots:[['d5a','1-1','김다정','1-1'],['d5b','2-1','하윤희','2-1'],['d5c','3-1','심미순','3-1'],['d5d','3-2','최세희','3-2'],['d5e','4-1','유창모','꿈꾸는놀이터'],
-            ['d5f','4-2','강수정','4-2'],['d5g','5-1','서지수','무한상상실'],['d5h','5-2','이경희','5-2'],['d5i','6-1','김애경','2030교실'],['d5j','6-2','정여진','6-2']]},
+            ['d5f','4-2','강수정','4-2'],['d5g','5-1','서지수','무한상상실'],['d5h','5-2','이경희','5-2'],['d5i','6-1','김애경','2030교실'],['d5j','6-2','정여진','컴퓨터실']]},
     {group:'중동관 집결 · 15:00 전'},
     {id:'d6', time:'15:00 전', task:'전체 교직원 중동관 집결', detail:'하교 지도 및 안내를 마친 뒤 보고회 시작 전까지 중동관으로 모입니다', loc:'hall', slots:[['d6a','','전교직원']]},
    ]},
- { id:'p5', time:'15:00 – 16:10', title:'운영 보고회', step:'운영 보고회',
+ { id:'p5', time:'15:00 – 16:10', title:'운영 보고회', step:'운영 보고회', map:'hall',
    sub:'장소: 중동관. 개회 → 운영 결과 발표 → 질의응답 및 협의 → 지도 조언 → 폐회',
    items:[
     {group:'개회 · 15:00 – 15:10'},
-    {id:'e1', time:'15:00 – 15:10', task:'개회, 국민의례, 운영 영상 시청 등', detail:'착석 안내, 휴대폰 진동·무음 안내 → 진행 순서 안내 → 개회 선언 및 국민의례(의식곡) → 1차 년도 학생·교사 성장 영상 시청', loc:'hall', slots:[['e1a','사회','교감'],['e1b','보조','교무']]},
-    {id:'e8', time:'15:00 – 16:10', task:'사진 및 영상 촬영', detail:'보고회 전 과정', loc:'hall', slots:[['e8a','','정영미']]},
-    {id:'e3', time:'15:05', task:'교장 안내 말씀', detail:'주요 내빈 소개 및 인사', loc:null, slots:[['e3a','','교장'],['e3b','마이크','교무']]},
+    {id:'e1', time:'15:00 – 15:10', task:'개회, 국민의례, 운영 영상 시청 등', detail:'착석 안내, 휴대폰 진동·무음 안내 → 진행 순서 안내 → 개회 선언 및 국민의례(의식곡) → 1차 년도 학생·교사 성장 영상 시청', hloc:'opening', slots:[['e1a','사회','교감'],['e1b','보조','교무']]},
+    {id:'e8', time:'15:00 – 16:10', task:'사진 및 영상 촬영', detail:'보고회 전 과정', hloc:'photo', slots:[['e8a','','정영미']]},
+    {id:'e3', time:'15:05', task:'교장 안내 말씀', detail:'주요 내빈 소개 및 인사', hloc:'principal', slots:[['e3a','','교장'],['e3b','마이크','교무']]},
     {group:'운영 보고 · 15:10 – 15:30'},
-    {id:'e4', time:'15:10 – 15:30', task:'연구학교 운영 결과 발표', detail:'1차 년도 운영 결과, 온라인 공유 플랫폼 발표 자료 열람 안내', loc:'hall', slots:[['e4a','발표','연구부장'],['e4b','발표 자료','연구']]},
+    {id:'e4', time:'15:10 – 15:30', task:'연구학교 운영 결과 발표', detail:'1차 년도 운영 결과, 온라인 공유 플랫폼 발표 자료 열람 안내', hloc:'podium', slots:[['e4a','발표','연구부장'],['e4b','발표 자료','연구']]},
     {group:'질의응답 및 협의 · 15:30 – 15:50'},
-    {id:'e5', time:'15:30 – 15:50', task:'사전 질의 답변 · 현장 질의응답', detail:'사전 수합·요목화한 질의 답변 → 현장 질의(질문 시 소속·성명 먼저) → 참관 소감 발표', loc:null, slots:[['e5a','','교감'],['e5b','','부장'],['e5c','','분과 대표']]},
-    {id:'e6', time:'15:30 – 15:50', task:'질문자 마이크 전달', loc:null, slots:[['e6a','','박연'],['e6b','','김애경']]},
+    {id:'e5', time:'15:30 – 15:50', task:'사전 질의 답변 · 현장 질의응답', detail:'사전 수합·요목화한 질의 답변 → 현장 질의(질문 시 소속·성명 먼저) → 참관 소감 발표', hloc:'qa', slots:[['e5a','','교감'],['e5b','','부장'],['e5c','','분과 대표']]},
+    {id:'e6', time:'15:30 – 15:50', task:'질문자 마이크 전달', hloc:'mic', slots:[['e6a','','박연'],['e6b','','김애경']]},
     {group:'지도 조언 · 15:50 – 16:10'},
-    {id:'e7', time:'15:50 – 16:10', task:'협의체 위원 지도 조언 말씀', detail:'진행: 사회자', loc:null, slots:[['e7a','','협의체 위원']]},
+    {id:'e7', time:'15:50 – 16:10', task:'협의체 위원 지도 조언 말씀', detail:'진행: 사회자', hloc:'council', slots:[['e7a','','협의체 위원']]},
    ]},
- { id:'p6', time:'16:10 – 16:30', title:'폐회 · 배웅 · 정리', step:'폐회·정리',
+ { id:'p6', time:'16:10 – 16:30', title:'폐회 · 배웅 · 정리', step:'폐회·정리', map:'hall',
    sub:'폐회 선언 후 중동관 입구에서 참관증을 나누고 내빈을 배웅합니다. 이어서 전 교직원이 뒷정리를 합니다.',
    items:[
-    {id:'f1', time:'16:10 – 16:20', task:'참관증 배부', loc:'hallDoor', slots:[['f1a','','오진희'],['f1b','','지용운']]},
-    {id:'f2', time:'16:10 – 16:30', task:'내빈 및 협의체 위원 인사 및 배웅', loc:'hallDoor', slots:[['f2a','','교장'],['f2b','','교감'],['f2c','','원감'],['f2d','','행정실장']]},
-    {id:'f3', time:'16:10 – 16:30', task:'뒷정리', loc:'hall', slots:[['f3a','','전교직원']]},
+    {id:'f1', time:'16:10 – 16:20', task:'참관증 배부', hloc:'door', slots:[['f1a','','오진희'],['f1b','','지용운']]},
+    {id:'f2', time:'16:10 – 16:30', task:'내빈 및 협의체 위원 인사 및 배웅', hloc:'doorVip', slots:[['f2a','','교장'],['f2b','','교감'],['f2c','','원감'],['f2d','','행정실장']]},
+    {id:'f3', time:'16:10 – 16:30', task:'뒷정리', hloc:'hallAll', slots:[['f3a','','전교직원']]},
     {id:'f4', time:'16:30 이후', task:'중동관 의자 철거', loc:null, slots:[['f4a','','업체']]},
    ]},
 ];
@@ -531,7 +617,7 @@ function phaseItems(p){
 
 function renderSite(){
   const p = PHASES[phaseIdx];
-  const items = phaseItems(p).filter(it=>!it.group && it.loc && it.loc!=='U');
+  const items = phaseItems(p).filter(it=>!it.group && it.loc && LOC[it.loc]);
   let s = siteBase();
   // 선택한 역할에 유도선이 있으면 표시
   const gItem = sel && ITEM[sel];
@@ -562,9 +648,71 @@ function renderSite(){
   document.getElementById('routeNote').textContent = (p.routes||[]).map(k=>'· '+ROUTES[k].note).join('  ');
 }
 function shortCap(c){ return c.length>16 ? c.slice(0,15)+'…' : c; }
+// 목록에 쓰는 위치 이름
+function locName(it){
+  if(it.where) return it.where;
+  if(it.hloc) return HLOC[it.hloc].name;
+  return (it.loc && LOC[it.loc]) ? LOC[it.loc].name : '';
+}
+const hasMap = it => !!(it.loc || it.hloc);
+
+/* ---------- 중동관 좌석 배치도 ---------- */
+function renderHall(){
+  const p = PHASES[phaseIdx];
+  let s = `<rect x="-10" y="-70" width="1410" height="770" fill="var(--bg)"/>`;
+  s += `<rect x="20" y="14" width="1192" height="676" rx="10" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/>`;
+  SEATS.forEach(([x,y,w,h,cat,label])=>{
+    const fill = {guest:'--s-guest',att:'--s-att',env:'--s-env',data:'--s-data',cls:'--s-cls',plan:'--s-plan',fix:'--s-fix',table:'--s-table'}[cat];
+    s += `<rect class="seat" x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="var(${fill})"/>`;
+    if(label){
+      const lines = label.split('|');
+      const fs = Math.min(cat==='fix' && lines.length===1 && w>300 ? 20 : 12, (w-4)/Math.max(...lines.map(l=>tw(l,1))));
+      const lh = fs*1.15, y0 = y + h/2 - (lines.length-1)*lh/2;
+      lines.forEach((l,i)=>{ s += `<text class="seat-t${cat==='fix'?' inv':''}" x="${x+w/2}" y="${(y0+i*lh).toFixed(1)}" font-size="${fs.toFixed(1)}">${esc(l)}</text>`; });
+    }
+  });
+  let selTag = '';
+  phaseItems(p).forEach(it=>{
+    if(it.group || !it.hloc) return;
+    const L = HLOC[it.hloc];
+    const cap = it.task.replace(/\s*\(.*?\)\s*/g,' ').trim();
+    const nm = itemNames(it).join(' · ') || '미정';
+    const isSel = sel===it.srcId;
+    const cls = [isSel?'sel':'', (sel && !isSel) ? 'dimmed' : person ? (itemHasPerson(it)?'me':'dimmed') : ''].join(' ');
+    const svgTag = tagSVG({x:L.anchors[0][0], y:L.anchors[0][1], anchors:L.anchors, tx:L.tx, ty:L.ty, num:it.num, cap:shortCap(cap), nm, cls, id:it.srcId, sel:isSel});
+    if(isSel) selTag = svgTag; else s += svgTag;
+  });
+  document.getElementById('hall').innerHTML = s + selTag;
+}
+
+/* ---------- 사전 준비 일정표 (2026년 10월, 평일) ---------- */
+function renderCal(){
+  const p = PHASES[phaseIdx];
+  const items = phaseItems(p).filter(it=>!it.group && it.due);
+  const byDay = {};
+  items.forEach(it=>{ (byDay[it.due] ||= []).push(it); });
+  let h = ['월','화','수','목','금'].map(d=>`<div class="dow">${d}</div>`).join('');
+  const start = new Date(2026, 8, 28);            // 9.28.(월)부터 5주
+  for(let w=0; w<5; w++) for(let d=0; d<5; d++){
+    const dt = new Date(start); dt.setDate(start.getDate() + w*7 + d);
+    const m = dt.getMonth()+1, day = dt.getDate(), key = `${m}-${String(day).padStart(2,'0')}`;
+    const list = byDay[key] || [];
+    const event = m===10 && day===27;
+    const hasSel = list.some(it=>it.srcId===sel);
+    h += `<div class="day${m!==10?' out':''}${event?' event':''}${hasSel?' has-sel':''}"><span class="dn">${m}. ${day}.</span>`;
+    if(event) h += `<span class="ev">보고회 당일</span>`;
+    list.forEach(it=>{
+      const isSel = sel===it.srcId;
+      const cls = [isSel?'sel':'', (sel && !isSel) ? 'dim' : person ? (itemHasPerson(it)?'me':'dim') : ''].join(' ');
+      h += `<button type="button" class="calchip ${cls}" data-sel="${it.srcId}" data-cal="1" title="${esc(it.task)}"><b>${it.num}</b><span>${esc(it.task)}</span></button>`;
+    });
+    h += `</div>`;
+  }
+  document.getElementById('cal').innerHTML = h;
+}
 
 /* 위층 (4 → 3 → 2층) */
-const UCROP = {4:[112,206],3:[310,389],2:[505,616]};
+const UCROP = {4:[112,206],3:[310,414],2:[505,616]};
 const UX0 = 140, UX1 = 725;
 function renderUpper(){
   const p = PHASES[phaseIdx];
@@ -644,14 +792,13 @@ function renderTasks(){
       if(it.note) h += `<p class="gnote">${esc(it.note)}</p>`;
       return;
     }
-    const L = it.loc && it.loc!=='U' ? LOC[it.loc].name : '';
-    const where = it.where || L;
-    const numCls = it.cont ? 'cont' : (it.loc ? '' : 'none');
+    const where = locName(it);
+    const numCls = it.cont ? 'cont' : (hasMap(it) ? '' : 'none');
     const cls = [sel===it.srcId?'sel':'', itemHasPerson(it)?'me':''].join(' ');
     h += `<div class="item ${cls}" data-item="${it.srcId}">`;
     h += it.num==null
       ? `<span class="bul" aria-hidden="true"></span><div>`
-      : `<button type="button" class="num ${numCls} ${sel===it.srcId?'sel':''}" data-sel="${it.srcId}" aria-pressed="${sel===it.srcId}" title="${it.loc?'누르면 배치도에 진하게 표시':'배치도 표시 없음'}">${it.num}</button><div>`;
+      : `<button type="button" class="num ${numCls} ${sel===it.srcId?'sel':''}" data-sel="${it.srcId}" aria-pressed="${sel===it.srcId}" title="${hasMap(it)?'누르면 배치도에 진하게 표시':'배치도 표시 없음'}">${it.num}</button><div>`;
     if(it.time) h += `<div class="itime">${esc(it.time)}${it.cont?' · 앞 단계에서 계속':''}</div>`;
     h += `<div class="itask">${esc(it.task)}</div>`;
     if(it.detail) h += `<div class="idetail">${esc(it.detail)}</div>`;
@@ -685,7 +832,7 @@ function renderPeople(){
   let rows = '';
   PHASES.forEach((p,pi)=>phaseItems(p).forEach(it=>{
     if(it.group || it.cont || !itemHasPerson(it)) return;
-    const where = it.where || (it.loc && it.loc!=='U' ? LOC[it.loc].name : '');
+    const where = locName(it);
     const role = it.slots.filter(sl=>tokens(nameOf(sl[0])).includes(person) && sl[1]).map(sl=>sl[1]).join(', ');
     rows += `<button type="button" class="dayrow" data-go="${pi}" data-item="${it.srcId}"><div><div class="dt">${esc(it.time||p.time)}</div><div class="dp">${esc(p.step)}</div></div><div><div class="dd">${esc(it.task)}${role?` <span class="dw">(${esc(role)})</span>`:''}</div>${where?`<div class="dw">${esc(where)}</div>`:''}</div></button>`;
   }));
@@ -723,9 +870,9 @@ function sizeTail(){
 // 번호가 표시된 배치도(1층 / 2~4층)로 화면 이동
 function mapFigOf(id){
   const it = ITEM[id];
-  if(!it || !it.loc) return null;
+  if(!it || !hasMap(it)) return null;
   if(it.loc==='U'){ const f = document.getElementById('upperFig'); return f.hidden ? null : f; }
-  return document.getElementById('site').closest('figure');
+  return mainFig();
 }
 function scrollToMap(id){
   const fig = mapFigOf(id);
@@ -749,7 +896,18 @@ function scrollItemTop(id){
   box.scrollTo({top: Math.max(0, y), behavior: smooth});
 }
 window.addEventListener('resize', setPhH);
-function renderMaps(){ renderSite(); renderUpper(); }
+// 단계마다 쓰는 배치도: 1층(기본) / 중동관 좌석(map:'hall') / 사전 준비 일정표(map:'cal')
+function renderMaps(){
+  const m = PHASES[phaseIdx].map || 'site';
+  document.getElementById('siteFig').hidden = m!=='site';
+  document.getElementById('hallFig').hidden = m!=='hall';
+  document.getElementById('calFig').hidden  = m!=='cal';
+  if(m==='site') renderSite();
+  if(m==='hall') renderHall();
+  if(m==='cal')  renderCal();
+  renderUpper();
+}
+const mainFig = () => ['siteFig','hallFig','calFig'].map(id=>document.getElementById(id)).find(f=>!f.hidden);
 function renderAll(){ renderSteps(); renderHead(); renderMaps(); renderTasks(); renderPeople(); }
 function go(i){
   phaseIdx = Math.max(0, Math.min(PHASES.length-1, i));
@@ -763,7 +921,7 @@ function focusPhaseMap(){
   const smooth = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   const upper = document.getElementById('upperFig');
   if(PHASES[phaseIdx].focusUpper && !upper.hidden){ upper.scrollIntoView({block:'start', behavior:smooth}); return; }
-  const site = document.getElementById('site').closest('figure');
+  const site = mainFig();
   const limit = parseFloat(getComputedStyle(site).scrollMarginTop) || 0;
   if(site.getBoundingClientRect().top < limit - 2) site.scrollIntoView({block:'start', behavior:smooth});
 }
@@ -773,7 +931,7 @@ document.addEventListener('click', e=>{
   const g = e.target.closest('[data-go]');
   if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ select(it, true); scrollItemTop(it); } return; }
   const sb = e.target.closest('[data-sel]');
-  if(sb){ select(sel===sb.dataset.sel ? null : sb.dataset.sel, true); return; }
+  if(sb){ const id = sel===sb.dataset.sel ? null : sb.dataset.sel; select(id, !sb.dataset.cal); if(id && sb.dataset.cal) scrollItemTop(id); return; }
   const zb = e.target.closest('[data-zoom]');
   if(zb){ zoomBtn(zb.closest('.zoomctl').dataset.map, zb.dataset.zoom); return; }
   const pp = e.target.closest('[data-person]');
@@ -857,7 +1015,7 @@ function fsChanged(){
 document.addEventListener('fullscreenchange', fsChanged);
 
 /* ---------- 확대 · 축소 · 이동 ---------- */
-const VIEW = { site:{base:[-205,668,1030,402], v:null}, upper:{base:null, v:null} };
+const VIEW = { site:{base:[-205,668,1030,402], v:null}, upper:{base:null, v:null}, hall:{base:[-10,-70,1410,770], v:null} };
 const MAXZ = 6;
 function setBase(id, b){
   const z = VIEW[id];
@@ -901,7 +1059,7 @@ function zoomBtn(id, what){
   else { VIEW[id].v = null; applyView(id); }
 }
 function revealOnMap(id){
-  ['site','upper'].forEach(mid=>{
+  ['site','upper','hall'].forEach(mid=>{
     const z = VIEW[mid]; if(!z.v) return;              // 전체 보기일 때는 이미 다 보임
     const svg = document.getElementById(mid);
     const els = [...svg.querySelectorAll(`[data-item="${id}"]`)];
@@ -916,7 +1074,7 @@ function revealOnMap(id){
     applyView(mid);
   });
 }
-['site','upper'].forEach(id=>{
+['site','upper','hall'].forEach(id=>{
   const svg = document.getElementById(id);
   svg.addEventListener('wheel', e=>{
     if(!VIEW[id].base) return;
