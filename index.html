@@ -305,8 +305,8 @@ svg text{font-family:var(--f-body)}
 
   <section class="people" aria-labelledby="pplTitle">
     <div>
-      <h2 id="pplTitle">선생님별 하루 일정</h2>
-      <p class="sub">이름을 누르면 그 선생님이 언제, 어디서, 무엇을 하는지 모아 보여 줍니다. 배치도에서도 노란색으로 표시됩니다.</p>
+      <h2 id="pplTitle">선생님별 역할</h2>
+      <p class="sub">이름을 누르면 그 선생님이 맡은 역할을 사전 준비부터 폐회까지 모아 보여 줍니다. 분과·담임·부장·전교직원처럼 여러 명이 함께 맡은 일도 포함되며, 배치도에서도 노란색으로 표시됩니다.</p>
       <div class="namelist" id="namelist"></div>
     </div>
     <div class="day" id="day"></div>
@@ -513,7 +513,51 @@ const tokens = s => String(s||'').split(/[,·、\/]+/).map(t=>t.trim()).filter(B
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tw = (s,fs) => { let w=0; for(const c of s){ const k=c.charCodeAt(0); w += k>=0x1100 ? fs*0.98 : c===' ' ? fs*0.32 : fs*0.6; } return w; };
 const itemNames = it => it.slots.map(s=>nameOf(s[0])).filter(v=>v && v.trim());
-const itemHasPerson = it => person && it.slots.some(s=>tokens(nameOf(s[0])).includes(person));
+/* ---------- 선생님별 역할: 묶음 이름 → 사람 ---------- */
+const FIXED = ['교장','교감','원감','행정실장','교무','연구'];          // 직책 그대로 두고 맨 앞에 정렬
+const DEPT = {
+  기획분과: ['윤현정','형영희','고락동','강형권','유창모'],
+  수업분과: ['심효석','정은자','윤소정','박동진','김정은','김대성','손제민','강지훈','문선영','최대인'],
+  자료분과: ['하윤희','이경희','최세희','김다정','심미순','강수정','서지수'],
+  환경분과: ['박동혁','송채은','오순정','허미진','지용운'],
+};
+const DEPT_REPS = ['강형권','유창모','심효석','박동진','김대성','하윤희','김다정','박동혁'];
+const NOT_STAFF = ['내빈','업체','협의체 위원'];                      // 명단에서 뺌
+const LESSON_SLOTS = ['c1a','c2a','c3a','c4a','c5a','c6a','c7a','c8a','c9a','c10a'];
+const GROUP_OF = () => ({
+  ...DEPT,
+  '분과 대표': DEPT_REPS, '분과대표': DEPT_REPS,
+  '담임': [...DEPT.수업분과, '연구'],
+  '부장': ['강지훈','연구','박동진','교무','김대성'],
+  '수업자': LESSON_SLOTS.flatMap(id=>tokens(nameOf(id))),
+  '교무실': ['정영미'],
+  '정보': ['김대성'],
+  '행정실': ['송지민','정유선','주현우','행정실장'],
+});
+// 이름 칸 하나 → 사람 목록 (전교직원은 전체)
+function expandName(tok, groups, all){
+  if(NOT_STAFF.includes(tok)) return [];
+  if(tok==='전교직원' || tok==='전 교직원') return all;
+  if(groups[tok]) return groups[tok].flatMap(x=> groups[x] && x!==tok ? expandName(x, groups, all) : [x]);
+  return [tok];
+}
+function staffList(){
+  const groups = GROUP_OF(), set = new Set(FIXED);
+  Object.values(groups).forEach(list=>list.forEach(n=>{ if(!groups[n]) set.add(n); }));
+  Object.keys(DEFAULTS).forEach(id=>tokens(nameOf(id)).forEach(tok=>{
+    if(tok==='전교직원' || tok==='전 교직원' || NOT_STAFF.includes(tok)) return;
+    expandName(tok, groups, []).forEach(n=>set.add(n));
+  }));
+  const fixed = FIXED.filter(n=>set.has(n));
+  const rest = [...set].filter(n=>!FIXED.includes(n)).sort((a,b)=>a.localeCompare(b,'ko'));
+  return [...fixed, ...rest];
+}
+// 이 칸에 선택한 선생님이 들어가는지 (묶음 포함)
+function slotHasPerson(slotId, who){
+  const groups = GROUP_OF(), all = staffList();
+  return tokens(nameOf(slotId)).some(tok=>expandName(tok, groups, all).includes(who));
+}
+const itemHasPerson = it => person && it.slots.some(s=>slotHasPerson(s[0], person));
 
 /* ---------- 도면 그리기 ---------- */
 const CATVAR = {cls:'--r-cls',sp:'--r-sp',adm:'--r-adm',kid:'--r-kid',wc:'--r-wc',hall:'--r-hall',aft:'--r-aft'};
@@ -833,11 +877,7 @@ function renderTasks(){
 }
 
 /* ---------- 선생님별 ---------- */
-function allPeople(){
-  const set = new Set();
-  Object.keys(DEFAULTS).forEach(id=>tokens(nameOf(id)).forEach(t=>set.add(t)));
-  return [...set].sort((a,b)=>a.localeCompare(b,'ko'));
-}
+function allPeople(){ return staffList(); }
 function renderPeople(){
   const list = allPeople();
   if(person && !list.includes(person)) person = null;
@@ -848,7 +888,12 @@ function renderPeople(){
   PHASES.forEach((p,pi)=>phaseItems(p).forEach(it=>{
     if(it.group || it.cont || !itemHasPerson(it)) return;
     const where = locName(it);
-    const role = it.slots.filter(sl=>tokens(nameOf(sl[0])).includes(person) && sl[1]).map(sl=>sl[1]).join(', ');
+    // 어떤 자격으로 맡았는지: 칸 이름표(예: 발표) 또는 묶음 이름(예: 기획분과)
+    const role = [...new Set(it.slots.filter(sl=>slotHasPerson(sl[0], person)).flatMap(sl=>{
+      const own = tokens(nameOf(sl[0])).includes(person);
+      const via = own ? [] : tokens(nameOf(sl[0])).filter(tok=>!NOT_STAFF.includes(tok));
+      return [sl[1], ...via].filter(Boolean);
+    }))].join(', ');
     rows += `<button type="button" class="dayrow" data-go="${pi}" data-item="${it.srcId}"><div><div class="dt">${esc(it.time||p.time)}</div><div class="dp">${esc(p.step)}</div></div><div><div class="dd">${esc(it.task)}${role?` <span class="dw">(${esc(role)})</span>`:''}</div>${where?`<div class="dw">${esc(where)}</div>`:''}</div></button>`;
   }));
   day.innerHTML = `<div class="dayhead"><strong>${esc(person)}</strong><button type="button" class="ghost" id="clearPerson">선택 해제</button></div>` + (rows || `<p class="empty">배정된 역할이 없습니다.</p>`);
