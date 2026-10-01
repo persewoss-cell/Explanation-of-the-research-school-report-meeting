@@ -16,7 +16,7 @@
   --r-cls:#FFE9A8; --r-sp:#DCEBFB; --r-adm:#E3F4E6; --r-kid:#FCE4EC; --r-wc:#E4E9EF; --r-hall:#F7F8F9; --r-aft:#FFD3B0;
   --r-stroke:#8C9A94; --r-text:#34423D;
   --tag-bg:#FFFFFF; --dim:.32;
-  --day-pink:#FCE6EE; --day-pink-line:#F2B8CC;
+  --day-pink:#FCE6EE; --day-pink-line:#F2B8CC; --help-fill:#E9E0FA; --help-line:#7A5CC2;
   --cal-sun:#FDECEC; --cal-sat:#E8F1FD; --cal-sun-ink:#C0392B; --cal-sat-ink:#2D6CC0;
   --s-guest:#FBE5D6; --s-att:#E4E6E3; --s-env:#E2F0D9; --s-data:#FFF2CC; --s-cls:#DEEBF7; --s-plan:#FFCCFF; --s-fix:#6F7A75; --s-fix-ink:#FFFFFF; --s-table:#C3C9C6;
   --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
@@ -30,7 +30,7 @@
     --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
     --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
     --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
-    --day-pink:#3B2530; --day-pink-line:#6E3F52;
+    --day-pink:#3B2530; --day-pink-line:#6E3F52; --help-fill:#30284A; --help-line:#A68BE8;
     --cal-sun:#3A2326; --cal-sat:#1E2B3D; --cal-sun-ink:#F08A80; --cal-sat-ink:#86B4F0;
     --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
   }
@@ -42,7 +42,7 @@
   --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
   --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
   --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
-  --day-pink:#3B2530; --day-pink-line:#6E3F52;
+  --day-pink:#3B2530; --day-pink-line:#6E3F52; --help-fill:#30284A; --help-line:#A68BE8;
   --cal-sun:#3A2326; --cal-sat:#1E2B3D; --cal-sun-ink:#F08A80; --cal-sat-ink:#86B4F0;
   --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
 }
@@ -442,7 +442,7 @@ const PHASES = [
     {id:'c8', short:'5-2', task:'5-2 지구마을 히어로', detail:'1. 내가 만드는 L-콘텐츠, 세계로 나아가다!(7/32) · L-콘텐츠의 특징을 담은 캐릭터 제작하기', where:'5-2 교실 (4층)', loc:'U', uroom:['5-2'], slots:[['c8a','','손제민']]},
     {id:'c9', short:'6-1', task:'6-1 지구마을 탐험대', detail:'1. Green! 데이터 탐험대(13/32) · 기후변화의 흐름과 영향을 해석하기', where:'2030 교실 (2층)', loc:'U', uroom:['2030교실'], slots:[['c9a','','강지훈']]},
     {id:'c10',short:'6-2', task:'6-2 지구마을 탐험대', detail:'1. Green! 데이터 탐험대(15/32) · 인포그래픽·보고서 만들기', where:'컴퓨터실 (3층)', loc:'U', uroom:['컴퓨터실'], slots:[['c10a','','문선영']]},
-    {id:'c11',short:'도움반', task:'도움반 학생 특별 프로그램', where:'학습도움실2 · 도움2반 (2층)', loc:'U', uroom:['학습도움실2'], slots:[['c11a','','박동혁'],['c11b','','오순정']]},
+    {id:'c11',short:'도움반', task:'도움반 학생 특별 프로그램', tone:'help', where:'학습도움실2 · 도움2반 (2층)', loc:'U', uroom:['학습도움실2'], slots:[['c11a','','박동혁'],['c11b','','오순정']]},
     {group:'1층 · 14:10까지 계속'},
     {ref:'b4'},{ref:'b5'},{ref:'b3'},{ref:'b1'},{ref:'b6'},
    ]},
@@ -801,7 +801,7 @@ function renderUpper(){
       });
     } else {
       const nm = itemNames(it).join('·') || '미정';
-      it.uroom.forEach(rk=>{ marks[rk] = {top: (it.roomTop&&it.roomTop[rk]) || it.short || rk, nm, note:SPECIAL_NAME[rk], id:it.srcId, hl, me}; });
+      it.uroom.forEach(rk=>{ marks[rk] = {top: (it.roomTop&&it.roomTop[rk]) || it.short || rk, nm, note:SPECIAL_NAME[rk], id:it.srcId, hl, me, tone:it.tone}; });
     }
   });
   let s = '', off = 0;
@@ -818,7 +818,8 @@ function renderUpper(){
       if(m){
         const cls = 'on' + (m.hl?' sel':'');
         const dim = sel ? !m.hl : (person && !m.me);
-        s += `<rect class="room ${cls}" x="${r[1]}" y="${r[2]}" width="${r[3]}" height="${r[4]}" data-item="${m.id}" style="${m.me&&!sel?'fill:var(--mark);':''}${dim?'opacity:.35;':''}"/>`;
+        const tone = m.tone==='help' && !m.hl && !(m.me&&!sel) ? 'fill:var(--help-fill);stroke:var(--help-line);' : '';   // 도움반은 보라색 칸
+        s += `<rect class="room ${cls}" x="${r[1]}" y="${r[2]}" width="${r[3]}" height="${r[4]}" data-item="${m.id}" style="${tone}${m.me&&!sel?'fill:var(--mark);':''}${dim?'opacity:.35;':''}"/>`;
       } else {
         s += `<g class="faded">${roomRect(r)}${roomLabel(r,9)}</g>`;
       }
