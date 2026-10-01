@@ -678,10 +678,10 @@ function renderHall(){
       lines.forEach((l,i)=>{ s += `<text class="seat-t${cat==='fix'?' inv':''}" x="${x+w/2}" y="${(y0+i*lh).toFixed(1)}" font-size="${fs.toFixed(1)}">${esc(l)}</text>`; });
     }
   });
-  // 범례 (PPT와 같은 위치: 좌석 아래, 등록 QR 옆)
-  [[190,'--s-att','참석자'],[332,'--s-env','환경분과'],[523,'--s-data','자료분과'],[629,'--s-cls','수업분과'],[735,'--s-plan','기획분과'],[926,'--s-guest','내빈']].forEach(([x,v,label])=>{
-    s += `<rect class="seat" x="${x}" y="626" width="21" height="21" rx="4" fill="var(${v})"/>`;
-    s += `<text x="${x+27}" y="637" font-size="16" fill="var(--ink2)" font-weight="600" dominant-baseline="central">${label}</text>`;
+  // 범례 (PPT와 같은 위치: 앞 2줄 본교 선생님석과 뒷줄 참석자석 사이)
+  [[190,'--s-att','참석자'],[328,'--s-env','환경분과'],[480,'--s-data','자료분과'],[636,'--s-cls','수업분과'],[784,'--s-plan','기획분과'],[934,'--s-guest','내빈']].forEach(([x,v,label])=>{
+    s += `<rect class="seat" x="${x}" y="284" width="20" height="20" rx="4" fill="var(${v})"/>`;
+    s += `<text x="${x+26}" y="294.5" font-size="16" fill="var(--ink2)" font-weight="600" dominant-baseline="central">${label}</text>`;
   });
   let selTag = '';
   phaseItems(p).forEach(it=>{
