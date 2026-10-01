@@ -285,11 +285,11 @@ svg text{font-family:var(--f-body)}
         <div class="cal" id="cal"></div>
       </figure>
       <figure id="hallFig" hidden>
-        <figcaption><span><b>중동관 좌석 배치도</b> · 운영 보고회장</span><span class="zoomctl" data-map="hall"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_hall">100%</span></span></figcaption>
+        <figcaption><span><b>중동관 좌석 배치도</b> · 운영 보고회장</span><span class="zoomctl" data-map="hall"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_hall">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="hall" viewBox="-10 -70 1430 810" role="img" aria-label="중동관 좌석 배치도"></svg></div>
       </figure>
       <figure id="siteFig">
-        <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_site">100%</span></span></figcaption>
+        <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_site">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="site" viewBox="-205 668 1030 402" role="img" aria-label="1층 배치도와 학교 주변"></svg></div>
         <div class="legend">
           <span><i style="background:var(--r-cls)"></i>학급 교실</span>
@@ -302,7 +302,7 @@ svg text{font-family:var(--f-body)}
         </div>
       </figure>
       <figure id="upperFig" hidden>
-        <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span class="zoomctl" data-map="upper"><span class="zh">누르면 전체화면 · 휠: 확대·축소 · 끌기: 이동</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_upper">100%</span></span></figcaption>
+        <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span class="zoomctl" data-map="upper"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_upper">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="upper" role="img" aria-label="2층부터 4층까지 교실 배치"></svg></div>
       </figure>
     </div>
@@ -1147,11 +1147,7 @@ function revealOnMap(id){
 }
 ['site','upper','hall'].forEach(id=>{
   const svg = document.getElementById(id);
-  svg.addEventListener('wheel', e=>{
-    if(!VIEW[id].base) return;
-    e.preventDefault();
-    zoomAt(id, Math.pow(1.0015, e.deltaY * (e.deltaMode===1 ? 30 : 1)), e.clientX, e.clientY);
-  }, {passive:false});
+  // 마우스 휠은 페이지 스크롤에 맡김 (확대·축소는 +/− 버튼으로)
   const pts = new Map(); let drag = null, pinch = null, moved = false;
   svg.addEventListener('pointerdown', e=>{
     if(e.button!==undefined && e.button!==0) return;
