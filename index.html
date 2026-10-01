@@ -16,6 +16,7 @@
   --r-cls:#FFE9A8; --r-sp:#DCEBFB; --r-adm:#E3F4E6; --r-kid:#FCE4EC; --r-wc:#E4E9EF; --r-hall:#F7F8F9; --r-aft:#FFD3B0;
   --r-stroke:#8C9A94; --r-text:#34423D;
   --tag-bg:#FFFFFF; --dim:.32;
+  --day-pink:#FCE6EE; --day-pink-line:#F2B8CC;
   --cal-sun:#FDECEC; --cal-sat:#E8F1FD; --cal-sun-ink:#C0392B; --cal-sat-ink:#2D6CC0;
   --s-guest:#FBE5D6; --s-att:#E4E6E3; --s-env:#E2F0D9; --s-data:#FFF2CC; --s-cls:#DEEBF7; --s-plan:#FFCCFF; --s-fix:#6F7A75; --s-fix-ink:#FFFFFF; --s-table:#C3C9C6;
   --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
@@ -29,6 +30,7 @@
     --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
     --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
     --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
+    --day-pink:#3B2530; --day-pink-line:#6E3F52;
     --cal-sun:#3A2326; --cal-sat:#1E2B3D; --cal-sun-ink:#F08A80; --cal-sat-ink:#86B4F0;
     --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
   }
@@ -40,6 +42,7 @@
   --ground:#18221E; --road:#2A3431; --apt:#262B35; --field:#2C2720; --track:#5A3A30;
   --r-cls:#4A4124; --r-sp:#233447; --r-adm:#233A2B; --r-kid:#46303A; --r-wc:#2C333B; --r-hall:#1E2724; --r-aft:#4D3627;
   --r-stroke:#5E6E67; --r-text:#D4DED9; --tag-bg:#1A2420; --dim:.3;
+  --day-pink:#3B2530; --day-pink-line:#6E3F52;
   --cal-sun:#3A2326; --cal-sat:#1E2B3D; --cal-sun-ink:#F08A80; --cal-sat-ink:#86B4F0;
   --s-guest:#4A3426; --s-att:#2A322F; --s-env:#263A2A; --s-data:#45401F; --s-cls:#22354A; --s-plan:#4A2A4A; --s-fix:#56625D; --s-fix-ink:#F0F4F2; --s-table:#3A4440;
 }
@@ -215,6 +218,10 @@ svg text{font-family:var(--f-body)}
 .day .empty{color:var(--muted);font-size:14px;padding:10px 0}
 .dayrow{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;text-align:left;background:var(--bg);border:1px solid transparent;border-radius:10px;padding:8px 10px}
 .dayrow:hover{border-color:var(--accent)}
+.dayrow.today{background:var(--day-pink);border-color:var(--day-pink-line)}
+.daykey{display:inline-flex;gap:10px;font-size:12px;color:var(--muted);margin-left:auto}
+.daykey i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;border:1px solid var(--line);background:var(--bg)}
+.daykey i.today{background:var(--day-pink);border-color:var(--day-pink-line)}
 .dayrow .dt{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px}
 .dayrow .dp{font-size:12px;color:var(--muted)}
 .dayrow .dd{font-weight:600}
@@ -894,9 +901,9 @@ function renderPeople(){
       const via = own ? [] : tokens(nameOf(sl[0])).filter(tok=>!NOT_STAFF.includes(tok));
       return [sl[1], ...via].filter(Boolean);
     }))].join(', ');
-    rows += `<button type="button" class="dayrow" data-go="${pi}" data-item="${it.srcId}"><div><div class="dt">${esc(it.time||p.time)}</div><div class="dp">${esc(p.step)}</div></div><div><div class="dd">${esc(it.task)}${role?` <span class="dw">(${esc(role)})</span>`:''}</div>${where?`<div class="dw">${esc(where)}</div>`:''}</div></button>`;
+    rows += `<button type="button" class="dayrow ${p.id==='p0'?'prep':'today'}" data-go="${pi}" data-item="${it.srcId}"><div><div class="dt">${esc(it.time||p.time)}</div><div class="dp">${esc(p.step)}</div></div><div><div class="dd">${esc(it.task)}${role?` <span class="dw">(${esc(role)})</span>`:''}</div>${where?`<div class="dw">${esc(where)}</div>`:''}</div></button>`;
   }));
-  day.innerHTML = `<div class="dayhead"><strong>${esc(person)}</strong><button type="button" class="ghost" id="clearPerson">선택 해제</button></div>` + (rows || `<p class="empty">배정된 역할이 없습니다.</p>`);
+  day.innerHTML = `<div class="dayhead"><strong>${esc(person)}</strong><span class="daykey"><span><i></i>사전 준비</span><span><i class="today"></i>당일 업무</span></span><button type="button" class="ghost" id="clearPerson">선택 해제</button></div>` + (rows || `<p class="empty">배정된 역할이 없습니다.</p>`);
 }
 
 /* ---------- 단계 ---------- */
