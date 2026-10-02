@@ -1024,6 +1024,8 @@ document.addEventListener('click', e=>{
 /* ---------- 키보드 · 프레젠터(발표기) ----------
    발표기 다음/이전 버튼은 기종에 따라 PageDown/PageUp, →/←, ↓/↑, 스페이스를 보냄.
    발표 시작 버튼(F5)은 전체화면, 화면 가리기(B · .)는 검은 화면. */
+let lastStepAt = 0;
+const STEP_GAP = 400;   // ms: 발표기가 한 번 누를 때 두 번 보내거나 키가 반복되어도 한 칸만 넘김
 document.addEventListener('keydown', e=>{
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key, inInput = e.target.matches('input, textarea');
@@ -1036,8 +1038,16 @@ document.addEventListener('keydown', e=>{
     e.preventDefault(); blackout.hidden = true; return;                       // 검은 화면은 아무 키나 누르면 해제
   }
   if((k==='Enter'||k===' ') && e.target.matches('svg [data-item]')){ e.preventDefault(); select(e.target.dataset.item, false); return; }
-  if(NEXT.includes(k)){ e.preventDefault(); if(inInput) e.target.blur(); stepNext(); return; }
-  if(PREV.includes(k)){ e.preventDefault(); if(inInput) e.target.blur(); stepPrev(); return; }
+  if(NEXT.includes(k) || PREV.includes(k)){
+    e.preventDefault();
+    if(inInput) e.target.blur();
+    if(e.repeat) return;                                   // 버튼을 길게 눌러 생긴 반복 신호
+    const now = performance.now();
+    if(now - lastStepAt < STEP_GAP) return;                // 한 번 누름에 두 번 들어온 신호
+    lastStepAt = now;
+    NEXT.includes(k) ? stepNext() : stepPrev();
+    return;
+  }
   if(k==='F5'){ e.preventDefault(); enterFs(); return; }                          // 발표 시작 버튼
   if(k==='b' || k==='B' || k==='.'){ e.preventDefault(); blackout.hidden = false; return; }   // 화면 가리기
   if(k==='Escape'){ if(stage.classList.contains('fs')) exitFs(); else if(sel) select(null); }
