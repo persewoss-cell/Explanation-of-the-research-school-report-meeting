@@ -75,6 +75,15 @@ h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,3.2vw,38px);li
 .dot.ok{background:var(--accent)} .dot.busy{background:var(--mark)} .dot.warn{background:var(--route)}
 .ghost{background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px;color:var(--ink2)}
 .ghost:hover{border-color:var(--ink2)}
+.modebox{gap:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--paper)}
+.seg button{border:none;background:none;border-radius:999px;padding:5px 14px;font-size:14px;font-weight:600;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.leadbtn{border:1.5px solid var(--accent);background:var(--paper);color:var(--accent);border-radius:999px;padding:5px 14px;font-size:14px;font-weight:600}
+.leadbtn[aria-pressed="true"]{background:var(--mark);border-color:#1B2723;color:#1B2723}
+.syncstatus{font-size:12.5px;color:var(--ink2)}
+.syncbadge{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--accent-soft);color:var(--accent);align-self:center}
+.syncbadge.lead{background:var(--mark);color:#1B2723}
 .ghost.danger{border-color:var(--route);color:var(--route)}
 
 /* steps */
@@ -271,6 +280,14 @@ svg text{font-family:var(--f-body)}
       <p class="meta"><b>2026. 10. 27.(화)</b> 13:40 – 16:10 · 광양중동초등학교 · 수업 공개 각 교실 · 보고회 <b>중동관</b></p>
     </div>
     <div class="savebox">
+      <div class="row modebox">
+        <div class="seg" role="group" aria-label="보기 방식">
+          <button type="button" id="modeSolo" aria-pressed="true">혼자보기</button>
+          <button type="button" id="modeTogether" aria-pressed="false">함께보기</button>
+        </div>
+        <button type="button" class="leadbtn" id="leadBtn" aria-pressed="false" hidden>내가 진행</button>
+      </div>
+      <div class="row"><span id="syncStatus" class="syncstatus" hidden></span></div>
       <div class="row"><span id="saveStatus"><span class="dot"></span>저장 공간 연결 중…</span></div>
       <div class="row" id="resetRow"><button class="ghost" id="resetBtn" type="button">계획서 명단으로 되돌리기</button></div>
     </div>
@@ -286,6 +303,7 @@ svg text{font-family:var(--f-body)}
         <button type="button" id="fsBtn" title="발표기: 다음/이전 버튼으로 넘김 · F5 전체화면 · B 화면 가리기">전체화면</button>
         <button type="button" id="prevBtn" aria-label="이전">← 이전</button>
         <span class="pos" id="posTxt" aria-live="polite"></span>
+        <span class="syncbadge" id="syncBadge" hidden></span>
         <button type="button" id="nextBtn" aria-label="다음">다음 →</button>
       </div>
       <p id="phSub"></p>
@@ -1000,6 +1018,7 @@ function go(i){
   try{ history.replaceState(null,'','#'+PHASES[phaseIdx].id); }catch(e){}
   renderSteps(); renderHead(); renderMaps(); renderTasks();
   focusPhaseMap();
+  syncOut();
 }
 // 단계가 바뀌면 그 단계의 중심 배치도가 보이게: 수업 공개는 2~4층, 나머지는 1층
 function focusPhaseMap(){
@@ -1013,6 +1032,8 @@ function focusPhaseMap(){
 
 /* ---------- 이벤트 ---------- */
 document.addEventListener('click', e=>{
+  // 함께보기에서 따라보는 사람은 단계·번호를 직접 바꾸지 않음
+  if(locked() && e.target.closest('[data-go], [data-sel], #prevBtn, #nextBtn, svg [data-item]')){ flashLocked(); return; }
   const g = e.target.closest('[data-go]');
   if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ select(it, true); scrollItemTop(it); } return; }
   const sb = e.target.closest('[data-sel]');
@@ -1046,6 +1067,7 @@ document.addEventListener('keydown', e=>{
     e.preventDefault(); blackout.hidden = true; return;                       // 검은 화면은 아무 키나 누르면 해제
   }
   if((k==='Enter'||k===' ') && e.target.matches('svg [data-item]')){ e.preventDefault(); select(e.target.dataset.item, false); return; }
+  if((NEXT.includes(k) || PREV.includes(k)) && locked()){ e.preventDefault(); flashLocked(); return; }
   if(NEXT.includes(k) || PREV.includes(k)){
     e.preventDefault();
     if(inInput) e.target.blur();
@@ -1067,6 +1089,7 @@ function select(id, reveal){
   document.querySelectorAll('.num[data-sel]').forEach(b=>{ const on = b.dataset.sel===id; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', on); });
   if(id && reveal){ revealOnMap(id); scrollToMap(id); }
   updateNav();
+  syncOut();
 }
 
 /* 단계 안에서 번호 차례로 → 마지막 번호 다음은 다음 단계 */
@@ -1100,7 +1123,100 @@ function updateNav(){
   const last = i===ids.length-1 && phaseIdx<PHASES.length-1;
   document.getElementById('nextBtn').textContent = last ? '다음 단계 →' : '다음 →';
   document.getElementById('posTxt').textContent = !ids.length ? `${phaseIdx+1}단계 전체` : i<0 ? `전체 보기 · ${ids.length}개` : `${i+1} / ${ids.length}`;
+  if(locked()){ document.getElementById('prevBtn').disabled = true; document.getElementById('nextBtn').disabled = true; }
 }
+
+/* ---------- 함께보기: 진행자 화면을 따라가기 ----------
+   공개 MQTT 중계 서버로 '지금 단계·번호'만 주고받음 (이름 등 다른 정보는 보내지 않음).
+   진행자가 보낸 마지막 위치는 서버에 남겨 두어, 늦게 들어온 사람도 바로 같은 화면으로 맞춤. */
+const SYNC = {
+  lib: 'https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js',
+  broker: (()=>{ try{ return localStorage.getItem('jd-sync-broker') || 'wss://broker.emqx.io:8084/mqtt'; }catch(e){ return 'wss://broker.emqx.io:8084/mqtt'; } })(),
+  topic: 'gwangyang-jungdong-es/sueop-nanum-2026/sync-v1',
+};
+const ME = Math.random().toString(36).slice(2,10);
+let syncMode = 'solo', isLead = false, mq = null, applyingRemote = false;
+const locked = () => syncMode==='together' && !isLead;
+function setSyncStatus(text){
+  const el = document.getElementById('syncStatus');
+  el.hidden = !text; el.textContent = text || '';
+  const badge = document.getElementById('syncBadge');
+  badge.hidden = syncMode!=='together';
+  badge.textContent = isLead ? '함께보기 · 내가 진행' : '함께보기 · 따라가는 중';
+  badge.classList.toggle('lead', isLead);
+}
+function flashLocked(){ setSyncStatus('함께보기 중에는 진행자가 넘깁니다. 직접 넘기려면 혼자보기로 바꾸세요.'); clearTimeout(flashLocked.t); flashLocked.t = setTimeout(()=>syncStatusNow(), 2500); }
+function syncStatusNow(){
+  if(syncMode!=='together') return setSyncStatus('');
+  if(!mq || !mq.connected) return setSyncStatus('함께보기 연결 중…');
+  setSyncStatus(isLead ? '내 화면이 함께보기 중인 모든 화면에 보입니다' : '진행자 화면을 따라갑니다');
+}
+function loadMqtt(){
+  if(window.mqtt) return Promise.resolve(window.mqtt);
+  return new Promise((ok, fail)=>{
+    const s = document.createElement('script'); s.src = SYNC.lib;
+    s.onload = ()=> window.mqtt ? ok(window.mqtt) : fail(new Error('no mqtt'));
+    s.onerror = fail; document.head.appendChild(s);
+  });
+}
+async function startTogether(){
+  syncMode = 'together'; isLead = false;
+  document.getElementById('leadBtn').hidden = false;
+  document.getElementById('leadBtn').setAttribute('aria-pressed','false');
+  syncStatusNow(); updateNav();
+  if(window.claude){ setSyncStatus('이 화면에서는 함께보기를 쓸 수 없습니다. GitHub Pages 주소로 열어 주세요.'); return; }
+  try{
+    const lib = await loadMqtt();
+    if(syncMode!=='together') return;
+    mq = lib.connect(SYNC.broker, {clientId:'jd-'+ME, reconnectPeriod:3000, connectTimeout:8000, clean:true});
+    mq.on('connect', ()=>{ mq.subscribe(SYNC.topic); syncStatusNow(); if(isLead) syncOut(true); });
+    mq.on('reconnect', ()=> setSyncStatus('연결이 끊겨 다시 연결하는 중…'));
+    mq.on('offline', ()=> setSyncStatus('인터넷 연결을 확인해 주세요 · 다시 연결하는 중…'));
+    mq.on('message', (topic, buf)=>{
+      let m; try{ m = JSON.parse(buf.toString()); }catch(e){ return; }
+      if(!m || m.from===ME || isLead || syncMode!=='together') return;
+      if(Date.now() - (m.t||0) > 12*3600*1000) return;           // 오래된 기록은 무시
+      applySync(m);
+    });
+  }catch(e){ setSyncStatus('함께보기 연결에 실패했습니다 · 인터넷 연결을 확인해 주세요'); }
+}
+function stopTogether(){
+  syncMode = 'solo'; isLead = false;
+  if(mq){ try{ mq.end(true); }catch(e){} mq = null; }
+  document.getElementById('leadBtn').hidden = true;
+  setSyncStatus(''); updateNav();
+}
+function syncOut(force){
+  if(applyingRemote || syncMode!=='together' || !isLead || !mq || !mq.connected) return;
+  mq.publish(SYNC.topic, JSON.stringify({from:ME, p:PHASES[phaseIdx].id, s:sel||null, t:Date.now()}), {qos:1, retain:true});
+}
+function applySync(m){
+  applyingRemote = true;
+  try{
+    const i = PHASES.findIndex(p=>p.id===m.p);
+    if(i>=0 && i!==phaseIdx) go(i);
+    if((m.s||null)!==sel){ select(m.s||null, !!m.s); if(m.s) scrollItemTop(m.s); }
+    updateNav();
+  } finally { applyingRemote = false; }
+}
+document.getElementById('modeSolo').addEventListener('click', ()=>{
+  document.getElementById('modeSolo').setAttribute('aria-pressed','true');
+  document.getElementById('modeTogether').setAttribute('aria-pressed','false');
+  stopTogether();
+});
+document.getElementById('modeTogether').addEventListener('click', ()=>{
+  if(syncMode==='together') return;
+  document.getElementById('modeSolo').setAttribute('aria-pressed','false');
+  document.getElementById('modeTogether').setAttribute('aria-pressed','true');
+  startTogether();
+});
+document.getElementById('leadBtn').addEventListener('click', e=>{
+  isLead = !isLead;
+  e.currentTarget.setAttribute('aria-pressed', String(isLead));
+  e.currentTarget.textContent = isLead ? '진행 중 (그만하기)' : '내가 진행';
+  syncStatusNow(); updateNav();
+  if(isLead) syncOut(true);
+});
 
 /* ---------- 전체화면 ---------- */
 const stage = document.querySelector('.stage');
