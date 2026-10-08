@@ -723,7 +723,9 @@ function renderSite(){
   // 선택한 역할에 유도선이 있으면 표시
   const gItem = sel && ITEM[sel];
   if(gItem && gItem.guide) s += `<path class="route guide" d="${GUIDES[gItem.guide]}" marker-end="url(#arr)"/>`;
-  (p.routes||[]).forEach(k=>ROUTES[k].paths.forEach(d=>{
+  // 유도선이 있는 역할을 고르면 그 유도선만 (참관자 동선은 숨김)
+  const shownRoutes = (gItem && gItem.guide) ? [] : (p.routes||[]);
+  shownRoutes.forEach(k=>ROUTES[k].paths.forEach(d=>{
     const noArrow = d[0]==='!';                     // '!' = 합류 지점까지 가는 선 (화살표 없음)
     s += `<path class="route" d="${noArrow?d.slice(1):d}"${noArrow?'':' marker-end="url(#arr)"'}/>`;
   }));
@@ -746,7 +748,7 @@ function renderSite(){
     });
   });
   document.getElementById('site').innerHTML = s + selTag;   // 선택한 이름표는 맨 위에
-  document.getElementById('routeNote').textContent = (p.routes||[]).map(k=>'· '+ROUTES[k].note).join('  ');
+  document.getElementById('routeNote').textContent = (gItem && gItem.guide) ? '· 내빈 차량: 정문 → 급식실 쪽 주차장' : (p.routes||[]).map(k=>'· '+ROUTES[k].note).join('  ');
 }
 function shortCap(c){ return c.length>16 ? c.slice(0,15)+'…' : c; }
 // 목록에 쓰는 위치 이름
