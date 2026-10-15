@@ -76,6 +76,34 @@ h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,3.2vw,38px);li
 .ghost{background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px;color:var(--ink2)}
 .ghost:hover{border-color:var(--ink2)}
 .modebox{gap:8px}
+.phtabs{display:inline-flex;gap:4px;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--paper);align-self:center}
+.phtabs button{border:none;background:none;border-radius:7px;padding:6px 14px;font-size:15px;font-weight:600;color:var(--ink2)}
+.phtabs button[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+.supwrap{overflow-x:auto}
+table.sup{width:100%;border-collapse:collapse;font-size:13px;line-height:1.4}
+table.sup th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;padding:6px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
+table.sup td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.sup tr[data-sel]{cursor:pointer}
+table.sup tr[data-sel]:hover td{background:var(--bg)}
+table.sup tr.sel td{background:var(--mark-soft)}
+table.sup tr.sel td:first-child{box-shadow:inset 4px 0 0 var(--mark)}
+table.sup tr.me td{background:var(--mark-soft)}
+table.sup .n{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+table.sup .who{font-weight:600;white-space:nowrap}
+table.sup .when{font-size:12px;color:var(--ink2);white-space:nowrap}
+table.sup .place{white-space:nowrap}
+@media (max-width:700px){
+  table.sup thead{display:none}
+  table.sup,table.sup tbody{display:block}
+  table.sup tr{display:grid;grid-template-columns:26px 1fr auto;grid-template-areas:"n place who" "n it it" "n ct ct" "n when when";column-gap:8px;border-bottom:1px solid var(--line);padding:8px 4px}
+  table.sup td{display:block;border:0;padding:1px 0;background:none!important}
+  table.sup tr.sel,table.sup tr.me{background:var(--mark-soft)}
+  table.sup tr.sel{box-shadow:inset 4px 0 0 var(--mark)}
+  table.sup tr.sel td:first-child{box-shadow:none}
+  table.sup .n{grid-area:n} table.sup .place{grid-area:place;font-weight:600;white-space:normal}
+  table.sup .who{grid-area:who;text-align:right} table.sup .it{grid-area:it;font-weight:600}
+  table.sup .ct{grid-area:ct;color:var(--ink2)} table.sup .when{grid-area:when;white-space:normal}
+}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--paper)}
 .seg button{border:none;background:none;border-radius:999px;padding:5px 14px;font-size:14px;font-weight:600;color:var(--ink2)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
@@ -300,6 +328,7 @@ svg text{font-family:var(--f-body)}
     <div class="phasehead">
       <span class="time" id="phTime"></span>
       <h2 id="phTitle"></h2>
+      <div class="phtabs" id="phTabs" hidden></div>
       <div class="nav">
         <button type="button" id="fsBtn" title="발표기: 다음/이전 버튼으로 넘김 · F5 전체화면 · B 화면 가리기">전체화면</button>
         <button type="button" id="prevBtn" aria-label="이전">← 이전</button>
@@ -315,9 +344,9 @@ svg text{font-family:var(--f-body)}
         <figcaption><span><b>사전 준비 일정표</b> · 2026년 10월</span><span>칸의 번호를 누르면 오른쪽 목록과 함께 표시됩니다</span></figcaption>
         <div class="cal" id="cal"></div>
       </figure>
-      <figure id="hallFig" hidden>
-        <figcaption><span><b>중동관 좌석 배치도</b> · 운영 보고회장</span><span class="zoomctl" data-map="hall"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_hall">100%</span></span></figcaption>
-        <div class="svgbox"><svg class="map" id="hall" viewBox="-10 -70 1430 810" role="img" aria-label="중동관 좌석 배치도"></svg></div>
+      <figure id="supFig" hidden>
+        <figcaption><span><b>준비물 목록</b> · 장소·준비물·담당 한눈에 보기</span><span>번호를 누르면 아래 배치도에 놓는 자리가 표시됩니다</span></figcaption>
+        <div class="supwrap" id="supTable"></div>
       </figure>
       <figure id="siteFig">
         <figcaption><span><b>1층 배치도</b> · 학교 주변 포함</span><span class="zoomctl" data-map="site"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_site">100%</span></span></figcaption>
@@ -336,6 +365,10 @@ svg text{font-family:var(--f-body)}
       <figure id="upperFig" hidden>
         <figcaption><span><b>2~4층 교실</b> · 이 시간대 담당 교실</span><span class="zoomctl" data-map="upper"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_upper">100%</span></span></figcaption>
         <div class="svgbox"><svg class="map" id="upper" role="img" aria-label="2층부터 4층까지 교실 배치"></svg></div>
+      </figure>
+      <figure id="hallFig" hidden>
+        <figcaption><span><b>중동관 좌석 배치도</b> · 운영 보고회장</span><span class="zoomctl" data-map="hall"><span class="zh">누르면 전체화면 · 끌기: 이동 · 확대·축소는 버튼으로</span><button type="button" data-zoom="out" aria-label="축소">−</button><button type="button" data-zoom="in" aria-label="확대">+</button><button type="button" data-zoom="reset">원래 크기</button><span class="zl" id="zl_hall">100%</span></span></figcaption>
+        <div class="svgbox"><svg class="map" id="hall" viewBox="-10 -70 1430 810" role="img" aria-label="중동관 좌석 배치도"></svg></div>
       </figure>
     </div>
 
@@ -371,6 +404,12 @@ const LOC = {
   stairMain:  {x:489, y:804, tx:520, ty:700, name:'본관 1층 계단 (보건실 옆)'},
   hallDoor:   {x:128, y:991, tx:128, ty:953, name:'중동관 입구'},
   hall:       {x:128, y:1022,tx:128, ty:1030,name:'중동관', stack:-1, inside:true},
+  // 준비물·세팅 위치
+  supBatons:  {x:24, y:951, anchors:[[24,951],[22,706],[-90,718]], tx:-120, ty:880, name:'정문 · 후문 · 데시앙 아파트 입구'},
+  supSign:    {x:300, y:925, tx:430, ty:958, name:'표지석 쪽 안내판 (교무실 쪽 건물 모서리 아래)'},
+  supReg:     {x:262, y:812, tx:480, ty:700, name:'필로티'},
+  supShoes:   {x:256, y:826, anchors:[[232,826],[281,826]], tx:68, ty:698, name:'필로티 양쪽 현관'},
+  supStairs:  {x:240, y:799, anchors:[[240,799],[489,804]], tx:680, ty:700, name:'본관·후관 계단 (1층~4층)'},
 };
 
 /* ---------- 중동관 좌석 배치도 위치 (PPT 좌표) ---------- */
@@ -392,6 +431,16 @@ const HLOC = {
   door:     {anchors:[[596,678]], tx:596, ty:714, name:'중동관 출입구'},
   doorVip:  {anchors:[[1143.5,606]], tx:1143, ty:640, paths:['M 1143.5 606 V 621'], name:'내빈석 (마지막 협의체 위원 아래)'},
   hallAll:  {anchors:[[300,440],[800,440]], tx:250, ty:601, name:'중동관 전체'},
+  // 준비물 위치
+  supEntry: {anchors:[[464,640]], tx:290, ty:714, name:'중동관 입구 (등록 QR·생수)'},
+  supGuest: {anchors:[198,231,264,297,330,363,396,429,462,495,528,561,594].map(y=>[1186,y]), tx:1318, ty:300,
+             paths:['M 1215 198 V 594','M 1215 300 H 1318', ...[198,231,264,297,330,363,396,429,462,495,528,561,594].map(y=>`M 1186 ${y} H 1215`)], name:'중동관 내빈석'},
+  supPlate: {anchors:[198,231,264,297,330,363,396,429,462,495,528,561,594].map(y=>[1186,y]), tx:1318, ty:520,
+             paths:['M 1215 198 V 594','M 1215 520 H 1318', ...[198,231,264,297,330,363,396,429,462,495,528,561,594].map(y=>`M 1186 ${y} H 1215`)], name:'중동관 내빈석 (13석)'},
+  supDept:  {anchors:[[240,186],[460,186],[760,186],[963,186]], tx:600, ty:142, name:'중동관 본교교원석 (의자 후면)'},
+  supStage: {anchors:[[596,66]], tx:380, ty:-35, name:'중동관 단상'},
+  supPC:    {anchors:[[1185,66]], tx:1300, ty:40, name:'단상 오른쪽 (사회석 쪽)'},
+  supMic:   {anchors:[[596,80]], tx:820, ty:-35, name:'중동관 단상'},
   photoFront:{anchors:[[596,101]], tx:596, ty:142, name:'단상 앞'},
 };
 
@@ -415,14 +464,14 @@ const PREP = [
   ['z2','10-07','연구학교 보고회 영상 제작 완료',['자료분과']],
   ['z3','10-08','연구학교 보고서 최종 완성 및 송부',['연구'],'지도위원 및 협의체 위원에게 송부'],
   ['z4','10-12','중동관 방송 시설 및 작동 1차 점검',['행정실','문선영']],
-  ['z5','10-13','수업 나눔의 날 참관 안내 자료 제작',['연구','정보'],'','리플렛, QR코드'],
+  ['z5','10-13','수업 나눔의 날 참관 안내 자료 제작',['연구','정보'],'팜플릿 컬러 인쇄(70부)·QR 인쇄와 필로티 비치는 자료분과 (준비물 4번)','리플렛, QR코드'],
   ['z6','10-14','복도 환경 구성 완료',['환경분과','담임']],
   ['z7','10-15','연구학교 보고회 발표 자료 완성',['연구']],
   ['z8','10-16','보고회 참관자 명단 및 질의 내용 수합, 요목화',['기획분과','수업분과']],
   ['z9','10-19','연구학교 운영 보고회 학부모 안내장 발송',['교무']],
   ['z10','10-19','연구학교 발표 자료 교직원 공유',['연구']],
   ['z11','10-19','내빈 및 협의체 위원 제본 자료 준비',['교무실']],
-  ['z12','10-19','중동관 및 교문 플래카드 설치',['연구','업체']],
+  ['z12','10-19','중동관 및 교문 플래카드 설치',['연구','업체'],'정문 입구 연구학교 홍보 플래카드, 중동관 단상 플래카드 (준비물 1·16번)'],
   ['z13','10-20','연구학교 보고서 최종 완성본 누리집 탑재',['연구']],
   ['z14','10-20','연구학교 운영 관련 질의사항 답변 준비',['부장','분과대표']],
   ['z15','10-21','교실 및 복도 대청소',['전교직원'],'청소 안내 참고'],
@@ -430,14 +479,48 @@ const PREP = [
   ['z17','10-22','연구학교 운영 보고회 최종 점검',['기획분과'],'보고서, 플랫폼, 자료 등'],
   ['z18','10-23','중동관 방송 시설 및 작동 최종 점검',['행정실','문선영']],
   ['z19','10-23','중동관(체육관) 청소',['전교직원']],
-  ['z20','10-26','연구학교 운영 보고회 식장 구성 및 준비 완료',['전교직원'],'본부 행정실, 오전 · 중동관 의자 배치(업체) · 내빈 좌석 및 명패, 자료 배치 · 출입구 손님 맞이 테이블 및 물 세팅 · 학년 및 분과 구분 집게형 쇼클립 설치 · 등록 및 안내 QR코드 설치','명패, 집게형 쇼클립, 안내 스탠드, 생수'],
+  ['z21','10-23','준비물 제작·인쇄 및 구비 완료',['정영미','자료분과','김애경','담임','늘봄실장','지용운','환경분과','행정실','교무','연구'],'안내판·스탠드 문구, 팜플릿·QR, 수업 정보·수업안·참관록, 참관증, 명패 13개, 분과 안내판 8개, 식 진행 시나리오 · 지시봉 4개, 덧신·쓰레기 봉투 구비 (자세한 담당은 준비물 탭)'],
+  ['z20','10-26','연구학교 운영 보고회 식장 구성 및 준비 완료',['전교직원'],'본부 행정실, 오전 · 중동관 의자 약 100개 배치(업체) · 내빈석 의자·테이블·인쇄물·생수(330ml) 세팅, 내빈정보는 교장 자리 · 명패 13개 · 분과 안내판 8개(A4 스탠드, 의자 후면) · 입구 테이블·생수·등록 QR·플랫폼 QR 스탠드 · 태극기 · PPT·무선 마이크 3개·시나리오, 무선 이어마이크·프리젠터 · 캠코더(후면 중앙) 세팅 (준비물 11~19번)','명패, 분과 안내판, A4 스탠드, QR, 생수, 태극기, 캠코더'],
+  ['z22','10-26','교실·계단 준비물 세팅',['담임','김애경'],'각 교실: 수업 교실(특별실) 팻말 밑 수업 정보 부착, 수업안·참관록 10부씩과 수업안 QR 교실 뒤 비치 (담임) · 계단: 1층~4층 교실 안내 화살표 부착 (김애경) (준비물 8~10번)'],
 ].map(([id,due,task,who,detail,gear])=>({id, due, time:fmtDue(due), task, detail:detail||undefined, gear:gear||undefined, loc:'cal',
-  slots: who.map((n,j)=>[id+'abcd'[j],'',n])}));
+  slots: who.map((n,j)=>[id+'abcdefghijkl'[j],'',n])}));
+
+/* ---------- 준비물 및 담당 (연구 보고회 준비물 목록) ----------
+   when: 제작·세팅 시점  ·  지도: loc(1층) / hloc(중동관) / U(2~4층 교실) */
+const LESSON_ROOMS = ['1-1','2-1','3-1','3-2','꿈꾸는놀이터','4-2','무한상상실','5-2','2030교실','컴퓨터실'];
+const LESSON_TOP = {'꿈꾸는놀이터':'4-1','무한상상실':'5-1','2030교실':'6-1','컴퓨터실':'6-2'};
+const SUPPLIES = [
+  ['s1','정문 입구','플래카드','연구학교 홍보 플래카드',['연구'],'설치 10. 19.(월)',{loc:'mainGate'}],
+  ['s2','정문 · 후문 · 데시앙','지시봉 4개','주차 안내용',['행정실'],'구비 ~10. 23. · 사용 당일 13:30',{loc:'supBatons'}],
+  ['s3','표지석 쪽 안내판','A3 스탠드','[← 수업 나눔 교실 입구] 제작, 인쇄 및 부착, 비치',['정영미'],'제작 ~10. 23. · 세팅 당일 오전',{loc:'supSign'}],
+  ['s4','필로티','테이블, 팜플릿, QR코드','팜플릿 컬러 인쇄 및 책상 위 비치(70부), 수업 나눔의 날 QR 인쇄 및 책상 위 비치',['자료분과'],'제작 ~10. 23. · 세팅 당일 오전',{loc:'stone'}],
+  ['s5','필로티','A3 스탠드','[참관 등록은 수업 참관 후 보고회장에서 14:50분부터 할 수 있습니다] 제작, 인쇄 및 부착, 비치',['정영미'],'제작 ~10. 23. · 세팅 당일 오전',{loc:'supReg'}],
+  ['s6','필로티 양쪽 현관','A4 스탠드 2개','왼쪽 현관: [2층: 6-1(2030교실) / 3층: 3-1(교실), 3-2(교실) / 4층: 5-1(무한상상실), 5-2(교실)] · 오른쪽 현관: [2층: 1-1(교실), 2-1(교실), 4-1(꿈꾸는 놀이터) / 3층: 4-2(교실), 6-2(컴퓨터실)] 제작, 인쇄 및 부착, 비치',['김애경'],'제작 ~10. 23. · 세팅 당일 오전',{loc:'piloti'}],
+  ['s7','필로티 양쪽 현관','덧신, 쓰레기 봉투','양쪽 현관 덧신 및 쓰레기 봉투 비치 (배치: 당일 13:30 정유선·정영미)',['행정실'],'구비 ~10. 23. · 배치 당일 13:30',{loc:'supShoes'}],
+  ['s8','계단','안내 화살표','교실 안내 화살표 출력 부착 (1층~4층 계단)',['김애경'],'제작 ~10. 23. · 부착 10. 26.',{loc:'supStairs'}],
+  ['s9','각 교실','수업 정보 부착','수업 교실(특별실)의 팻말 밑 수업 정보 부착 [0-0 수업, 000 선생님]',['담임'],'제작 ~10. 23. · 부착 10. 26.',{loc:'U'}],
+  ['s10','각 교실','수업안, 참관록, QR코드','수업안 및 참관록(10부씩), 수업안 QR코드 출력 교실 뒤 비치',['담임'],'제작 ~10. 23. · 비치 10. 26.',{loc:'U'}],
+  ['s11','중동관 입구','테이블, 생수, A4 스탠드 2개, QR코드, 참관증','테이블 및 물 비치, 수업 등록 QR(14:50분에 공개) 및 온라인 플랫폼 QR · 참관증 제작 및 출력(폐회 후 배부)',['늘봄실장','지용운'],'제작 ~10. 23. · 세팅 10. 26.',{hloc:'supEntry'}],
+  ['s12','중동관','의자','의자 약 100개 세팅',['업체'],'세팅 10. 26. · 철거 당일 16:30 이후',{hloc:'hallAll'}],
+  ['s13','중동관 내빈석','의자, 테이블, 인쇄물, 생수, 내빈정보','인원수에 맞춰 각각 세팅(생수: 330ml, 100개) · 내빈정보 출력 비치(교장선생님 자리)',['전교원'],'세팅 10. 26.',{hloc:'supGuest'}],
+  ['s14','중동관 내빈석','명패','명패 13개 제작 세팅 (배치도 사이트 참고)',['정영미'],'제작 ~10. 23. · 세팅 10. 26.',{hloc:'supPlate'}],
+  ['s15','중동관 본교교원석','A4 스탠드 8개, 분과 안내판(A4)','각 분과 안내판 제작, 인쇄, 부착 및 의자 후면 비치(참관자들이 보이도록) · 기획분과, 자료분과, 환경분과, 수업분과(1·2학년, 3학년, 4학년, 5학년, 6학년) 총 8개',['환경분과'],'제작 ~10. 23. · 세팅 10. 26.',{hloc:'supDept'}],
+  ['s16','중동관 단상','플래카드, 태극기','연구학교 플래카드 설치, 태극기 세팅',['연구'],'플래카드 10. 19. · 태극기 10. 26.',{hloc:'supStage'}],
+  ['s17','중동관 컴퓨터','무선 마이크 3개, PPT, 식 진행 시나리오','식 진행 및 보고발표 PPT 설치 및 작동 확인, 시나리오 출력 및 비치',['교무','연구'],'설치 10. 26. · 확인 당일 13:10',{hloc:'supPC'}],
+  ['s18','중동관 단상','무선 이어마이크, 프리젠터','보고회 발표 시 활용',['연구'],'세팅 10. 26. · 확인 당일 13:10',{hloc:'supMic'}],
+  ['s19','중동관 후면 중앙','캠코더','캠코더 세팅 및 보고회 영상 촬영',['정영미'],'세팅 10. 26. · 촬영 당일',{hloc:'photo'}],
+].map(([id,place,item,content,who,when,map])=>({id, time:when, task:`${place} · ${item}`, detail:content, where:place, place, item, ...map,
+  uroom: map.loc==='U' ? LESSON_ROOMS : undefined, roomTop: map.loc==='U' ? LESSON_TOP : undefined,
+  slots: who.map((n,j)=>[id+'abc'[j],'',n])}));
 
 const PHASES = [
- { id:'p0', time:'10. 1. – 10. 26.', title:'사전 준비', step:'사전 준비', map:'cal',
+ { id:'p0', time:'10. 1. – 10. 26.', title:'사전 준비', step:'사전 준비', map:'cal', tabLabel:'준비 일정',
    sub:'보고회 전날까지 마쳐야 할 준비입니다. 기한 순서로 번호를 붙였고, 왼쪽 일정표에서 날짜별로 볼 수 있습니다.',
    items: PREP },
+ { id:'p0s', stepOf:'p0', time:'10. 19. – 10. 27.', title:'사전 준비', step:'사전 준비', tabLabel:'준비물',
+   maps:['sup','site','upper','hall'], upper:true,
+   sub:'준비물 19가지와 담당입니다. 교실·계단·중동관은 전날(10. 26.) 세팅, 필로티·현관·실외는 미리 준비해 두고 당일 오전에 세팅합니다. 제작·인쇄는 10. 23.(금)까지.',
+   items: SUPPLIES },
  { id:'p1', time:'08:30 – 13:10', title:'오전 준비', step:'오전 준비',
    sub:'출근, 교실 환경 점검, 보고회장(중동관) 준비',
    upper:true,
@@ -448,7 +531,11 @@ const PHASES = [
      uroom:[...HOMEROOMS,'꿈꾸는놀이터','무한상상실','2030교실','컴퓨터실'],
      roomTop:{'꿈꾸는놀이터':'4-1','무한상상실':'5-1','2030교실':'6-1','컴퓨터실':'6-2'},
      slots:[['a2a','','담임']]},
-    {id:'a3', time:'13:10', task:'보고회장 준비', detail:'영상, 국민의례, 보고 파일 등 점검', loc:'hall', slots:[['a3a','','교무'],['a3b','','연구']]},
+    {id:'a5', time:'오전', task:'표지석 쪽 안내판 세팅', detail:'A3 스탠드 [← 수업 나눔 교실 입구] (준비물 3번)', loc:'supSign', slots:[['a5a','','정영미']]},
+    {id:'a6', time:'오전', task:'필로티 테이블 세팅', detail:'팜플릿 70부, 수업 나눔의 날 QR 책상 위 비치 (준비물 4번)', loc:'stone', slots:[['a6a','','자료분과']]},
+    {id:'a7', time:'오전', task:'필로티 참관 등록 안내 스탠드 세팅', detail:'A3 [참관 등록은 수업 참관 후 보고회장에서 14:50분부터] (준비물 5번)', loc:'supReg', slots:[['a7a','','정영미']]},
+    {id:'a8', time:'오전', task:'필로티 양쪽 현관 교실 안내 스탠드 세팅', detail:'A4 스탠드 2개 · 왼쪽 현관: 6-1, 3-1, 3-2, 5-1, 5-2 / 오른쪽 현관: 1-1, 2-1, 4-1, 4-2, 6-2 (준비물 6번)', loc:'piloti', slots:[['a8a','','김애경']]},
+    {id:'a3', time:'13:10', task:'보고회장 준비', detail:'영상, 국민의례, 보고 파일 등 점검 · PPT·무선 마이크 3개·무선 이어마이크·프리젠터 작동 확인, 시나리오 비치 (전날 설치, 준비물 17·18번)', loc:'hall', slots:[['a3a','','교무'],['a3b','','연구']]},
    ]},
  { id:'p2', time:'13:20 – 14:00', title:'손님맞이 · 참관 입실', step:'손님맞이',
    sub:'주차 안내와 참관 자료 배부. 참관자는 정문 → 표지석 입구 → 표지석 양옆으로 돌아 → 필로티 앞(자료 배부·안내) → 양쪽 현관으로 나뉘어 교실로 들어갑니다.',
@@ -458,8 +545,8 @@ const PHASES = [
     {id:'b5', time:'13:30 – 14:10', task:'참관자 주차 안내 (후문)', detail:'후문 주차장으로 먼저 주차 유도 → 만차 시 후문 폐쇄', gear:'지시봉', loc:'backGate', slots:[['b5a','','지용운']]},
     {id:'b3', time:'13:30 – 14:10', task:'참관자 주차 안내 (데시앙 아파트)', detail:'후문 주차장 만차 시 데시앙 아파트로 주차 유도', gear:'지시봉', loc:'desian', slots:[['b3a','','송지민'],['b3b','','주현우']]},
     {id:'b1', time:'13:20 – 14:10', task:'내빈 및 협의체 위원 맞이', detail:'도교육청, 광양교육지원청 포함 · 정문으로 들어와 급식실 쪽 주차장으로 유도', loc:'cafeLot', guide:'vip', slots:[['b1a','','원감'],['b1b','','행정실장']]},
-    {id:'b2', time:'13:20 –', task:'참관 자료 배부 및 안내', detail:'리플렛, QR코드 참관 안내 자료', loc:'stone', slots:[['b2a','','하윤희'],['b2b','','최세희']]},
-    {id:'b6', time:'13:30 – 14:10', task:'덧신 배치 및 정리 봉투 세팅', loc:'piloti', slots:[['b6a','','정유선'],['b6b','','정영미']]},
+    {id:'b2', time:'13:20 –', task:'참관 자료 배부 및 안내', detail:'리플렛, QR코드 참관 안내 자료 · 필로티 테이블의 팜플릿(70부)·QR 활용 (테이블 세팅: 자료분과)', loc:'stone', slots:[['b2a','','하윤희'],['b2b','','최세희']]},
+    {id:'b6', time:'13:30 – 14:10', task:'덧신 배치 및 정리 봉투 세팅', detail:'덧신·쓰레기 봉투는 행정실이 미리 구비 (준비물 7번)', loc:'piloti', slots:[['b6a','','정유선'],['b6b','','정영미']]},
     {id:'b7', time:'13:30 – 13:50', task:'수업 준비', where:'각 수업 교실 (다음 단계 2~4층 도면 참고)', loc:null, slots:[['b7a','','수업자']]},
    ]},
  { id:'p3', time:'14:00 – 14:40', title:'수업 공개', step:'수업 공개', noNum:true, focusUpper:true,
@@ -488,7 +575,7 @@ const PHASES = [
     {group:'참관자 중동관 안내 · 14:30 – 15:00'},
     {id:'d1', time:'14:30 – 15:00', task:'본관 1층 계단 안내', where:'보건실 옆 계단', loc:'stairMain', slots:[['d1a','','송채은']]},
     {id:'d2', time:'14:30 – 15:00', task:'후관 1층 계단 안내', where:'엘리베이터 옆 계단', loc:'stairBack', slots:[['d2a','','박연']]},
-    {id:'d3', time:'14:30 – 15:00', task:'중동관 입구 안내 및 QR 등록 도움', gear:'생수', loc:'hallDoor', slots:[['d3a','','늘봄실장'],['d3b','','지용운']]},
+    {id:'d3', time:'14:30 – 15:00', task:'중동관 입구 안내 및 QR 등록 도움', detail:'입구 테이블·생수, 수업 등록 QR(14:50 공개)·온라인 플랫폼 QR 스탠드 (준비물 11번)', gear:'생수', loc:'hallDoor', slots:[['d3a','','늘봄실장'],['d3b','','지용운']]},
     {id:'d4', time:'14:40 – 15:00', task:'식전 영상 상영', detail:'가을 음악 영상 (등록 시간 중)', loc:'hall', slots:[['d4a','','교무']]},
     {group:'학생 하교 지도 · 14:40 – 15:00', note:'방과후 없음, 돌봄 있음 · 교내와 운동장에서 놀지 않도록 지도 · 조용히 교문까지 이동하여 하교 · 지도 후 중동관 집결'},
     {id:'d5', time:'14:40 – 15:00', task:'학급별 하교 지도', detail:'특별실에서 수업한 반은 수업한 특별실에서 하교 지도 (4-1 꿈꾸는 놀이터, 5-1 무한상상실, 6-1 2030 교실, 6-2 컴퓨터실)', where:'수업한 교실 → 교문', loc:'U', perSlotRoom:true,
@@ -501,11 +588,11 @@ const PHASES = [
    sub:'장소: 중동관. 개회 → 운영 결과 발표 → 질의응답 및 협의 → 지도 조언 → 폐회',
    items:[
     {group:'개회 · 15:00 – 15:10'},
-    {id:'e8', time:'15:00 – 16:10', task:'사진 및 영상 촬영', detail:'보고회 전 과정', hloc:'photo', slots:[['e8a','','정영미']]},
+    {id:'e8', time:'15:00 – 16:10', task:'사진 및 영상 촬영', detail:'보고회 전 과정 · 캠코더는 중동관 후면 중앙(영상 촬영석)에 전날 세팅 (준비물 19번)', hloc:'photo', slots:[['e8a','','정영미']]},
     {id:'e1', time:'15:00 – 15:10', task:'개회, 국민의례, 운영 영상 시청 등', detail:'착석 안내, 휴대폰 진동·무음 안내 → 진행 순서 안내 → 개회 선언 및 국민의례(의식곡) → 1차 년도 학생·교사 성장 영상 시청', hloc:'opening', slots:[['e1a','사회','교감'],['e1b','보조','교무']]},
-    {id:'e3', time:'15:05', task:'교장 안내 말씀', detail:'주요 내빈 소개 및 인사', hloc:'principal', slots:[['e3a','','교장'],['e3b','마이크','교무']]},
+    {id:'e3', time:'15:05', task:'교장 안내 말씀', detail:'주요 내빈 소개 및 인사 · 내빈정보는 교장 자리에 비치 (준비물 13번)', hloc:'principal', slots:[['e3a','','교장'],['e3b','마이크','교무']]},
     {group:'운영 보고 · 15:10 – 15:30'},
-    {id:'e4', time:'15:10 – 15:30', task:'연구학교 운영 결과 발표', detail:'1차 년도 운영 결과, 온라인 공유 플랫폼 발표 자료 열람 안내', hloc:'podium', slots:[['e4a','발표','연구']]},
+    {id:'e4', time:'15:10 – 15:30', task:'연구학교 운영 결과 발표', detail:'1차 년도 운영 결과, 온라인 공유 플랫폼 발표 자료 열람 안내 · 무선 이어마이크·프리젠터 사용 (준비물 18번)', hloc:'podium', slots:[['e4a','발표','연구']]},
     {group:'질의응답 및 협의 · 15:30 – 15:50'},
     {id:'e5', time:'15:30 – 15:50', task:'사전 질의 답변 · 현장 질의응답', detail:'사전 수합·요목화한 질의 답변 → 현장 질의(질문 시 소속·성명 먼저) → 참관 소감 발표', hloc:'qa', slots:[['e5a','','교감'],['e5b','','부장'],['e5c','','분과 대표']]},
     {id:'e6', time:'15:30 – 15:50', task:'질문자 마이크 전달', hloc:'mic', slots:[['e6a','','박연'],['e6b','','김애경']]},
@@ -517,11 +604,11 @@ const PHASES = [
  { id:'p6', time:'16:10 – 16:30', title:'폐회 · 배웅 · 정리', step:'폐회·정리', map:'hall',
    sub:'폐회 선언 후 중동관 입구에서 참관증을 나누고 내빈을 배웅합니다. 이어서 전 교직원이 뒷정리를 합니다.',
    items:[
-    {id:'f1', time:'16:10 – 16:20', task:'참관증 배부', hloc:'door', slots:[['f1a','','늘봄실장'],['f1b','','지용운']]},
+    {id:'f1', time:'16:10 – 16:20', task:'참관증 배부', detail:'참관증은 미리 제작·출력 (준비물 11번)', hloc:'door', slots:[['f1a','','늘봄실장'],['f1b','','지용운']]},
     {id:'f2', time:'16:10 – 16:30', task:'내빈 및 협의체 위원 인사 및 배웅', hloc:'doorVip', slots:[['f2a','','교장'],['f2b','','교감'],['f2c','','원감'],['f2d','','행정실장']]},
     {id:'f3', time:'16:10 – 16:30', task:'뒷정리', hloc:'hallAll', slots:[['f3a','','전교직원']]},
     {id:'f5', time:'16:10 – 16:30', task:'기념 촬영', hloc:'photoFront', slots:[['f5a','','전교직원']]},
-    {id:'f4', time:'16:30 이후', task:'중동관 의자 철거', loc:null, slots:[['f4a','','업체']]},
+    {id:'f4', time:'16:30 이후', task:'중동관 의자 철거', detail:'의자 약 100개 (준비물 12번)', loc:null, slots:[['f4a','','업체']]},
    ]},
 ];
 
@@ -587,7 +674,7 @@ const GROUP_OF = () => ({
 // 이름 칸 하나 → 사람 목록 (전교직원은 전체)
 function expandName(tok, groups, all){
   if(NOT_STAFF.includes(tok)) return [];
-  if(tok==='전교직원' || tok==='전 교직원') return all;
+  if(tok==='전교직원' || tok==='전 교직원' || tok==='전교원') return all;
   if(groups[tok]) return groups[tok].flatMap(x=> groups[x] && x!==tok ? expandName(x, groups, all) : [ALIAS[x]||x]);
   return [ALIAS[tok]||tok];
 }
@@ -595,7 +682,7 @@ function staffList(){
   const groups = GROUP_OF(), set = new Set(FIXED);
   Object.values(groups).forEach(list=>list.forEach(n=>{ if(!groups[n]) set.add(ALIAS[n]||n); }));
   Object.keys(DEFAULTS).filter(id=>!isGuestSlot(id)).forEach(id=>tokens(nameOf(id)).forEach(tok=>{
-    if(tok==='전교직원' || tok==='전 교직원' || NOT_STAFF.includes(tok)) return;
+    if(tok==='전교직원' || tok==='전 교직원' || tok==='전교원' || NOT_STAFF.includes(tok)) return;
     expandName(tok, groups, []).forEach(n=>set.add(n));
   }));
   const fixed = FIXED.filter(n=>set.has(n));
@@ -671,11 +758,11 @@ function siteBase(){
   s += `<text class="site-txt" x="22" y="700" font-size="10">후</text><text class="site-txt" x="22" y="714" font-size="10">문</text>`;
   // 표지석
   s += `<path d="M 196 910 Q 205 892 214 910 Z" fill="var(--r-stroke)"/><text class="site-sm" x="205" y="921" font-size="9">표지석</text>`;
-  // 출입구 안내판 (교무실 쪽 건물 모서리 아래)
+  // 표지석 쪽 안내판 [← 수업 나눔 교실 입구] (교무실 쪽 건물 모서리 아래)
   s += `<g><line x1="300" y1="924" x2="300" y2="938" stroke="var(--ink2)" stroke-width="2"/>`
      + `<rect x="289" y="912" width="22" height="13" rx="2" fill="var(--mark)" stroke="#1B2723" stroke-width="1.2"/>`
      + `<text x="300" y="918.5" font-size="7" font-weight="700" fill="#1B2723" text-anchor="middle" dominant-baseline="central">안내</text>`
-     + `<text class="site-txt" x="318" y="928" font-size="11" style="text-anchor:start">출입구 안내판</text></g>`;
+     + `<text class="site-txt" x="318" y="928" font-size="11" style="text-anchor:start">표지석 쪽 안내판</text></g>`;
   // 필로티 양쪽 현관 문 표시
   s += `<rect x="224" y="823" width="16" height="4" fill="var(--accent)"/><rect x="273" y="823" width="16" height="4" fill="var(--accent)"/>`;
   // 방위
@@ -832,7 +919,7 @@ function renderUpper(){
   if(!p.upper) return;
   // 교실별 표시 내용
   const marks = {}; // roomKey -> {top, names, itemId, num, cls}
-  phaseItems(p).forEach(it=>{
+  phaseItems(p).slice().sort((a,b)=>(a.srcId===sel)-(b.srcId===sel)).forEach(it=>{
     if(it.group || it.loc!=='U') return;
     const hl = sel===it.srcId, me = person && itemHasPerson(it);
     if(it.perSlotRoom){
@@ -949,15 +1036,27 @@ function renderPeople(){
       const via = own ? [] : tokens(nameOf(sl[0])).filter(tok=>!NOT_STAFF.includes(tok));
       return [sl[1], ...via].filter(Boolean);
     }))].join(', ');
-    rows += `<button type="button" class="dayrow ${p.id==='p0'?'prep':'today'}" data-go="${pi}" data-item="${it.srcId}"><div><div class="dt">${esc(it.time||p.time)}</div><div class="dp">${esc(p.step)}</div></div><div><div class="dd">${esc(it.task)}${role?` <span class="dw">(${esc(role)})</span>`:''}</div>${where?`<div class="dw">${esc(where)}</div>`:''}</div></button>`;
+    rows += `<button type="button" class="dayrow ${p.id.startsWith('p0')?'prep':'today'}" data-go="${pi}" data-item="${it.srcId}"><div><div class="dt">${esc(it.time||p.time)}</div><div class="dp">${esc(p.step)}</div></div><div><div class="dd">${esc(it.task)}${role?` <span class="dw">(${esc(role)})</span>`:''}</div>${where?`<div class="dw">${esc(where)}</div>`:''}</div></button>`;
   }));
   day.innerHTML = `<div class="dayhead"><strong>${esc(ROLE_LABEL[person]||person)}</strong><span class="daykey"><span><i></i>사전 준비</span><span><i class="today"></i>당일 업무</span></span><button type="button" class="ghost" id="clearPerson">선택 해제</button></div>` + (rows || `<p class="empty">배정된 역할이 없습니다.</p>`);
 }
 
 /* ---------- 단계 ---------- */
+// 단계 버튼: 같은 단계 안의 탭(예: 사전 준비의 준비물)은 버튼을 따로 만들지 않음
+const stepKey = p => p.stepOf || p.id;
 function renderSteps(){
-  document.getElementById('steps').innerHTML = PHASES.map((p,i)=>
-    `<button type="button" class="step" data-go="${i}" ${i===phaseIdx?'aria-current="step"':''}><span class="k">${i+1}</span><span class="t">${esc(p.time)}</span><span class="n">${esc(p.step)}</span></button>`).join('');
+  const cur = stepKey(PHASES[phaseIdx]);
+  let k = 0;
+  document.getElementById('steps').innerHTML = PHASES.map((p,i)=>{
+    if(p.stepOf) return '';
+    k++;
+    return `<button type="button" class="step" data-go="${i}" ${p.id===cur?'aria-current="step"':''}><span class="k">${k}</span><span class="t">${esc(p.time)}</span><span class="n">${esc(p.step)}</span></button>`;
+  }).join('');
+  // 단계 안 탭
+  const tabs = document.getElementById('phTabs');
+  const sibs = PHASES.map((p,i)=>[p,i]).filter(([p])=>stepKey(p)===cur);
+  tabs.hidden = sibs.length < 2;
+  tabs.innerHTML = sibs.length < 2 ? '' : sibs.map(([p,i])=>`<button type="button" data-go="${i}" aria-current="${i===phaseIdx}">${esc(p.tabLabel||p.title)} <small>${p.items.filter(x=>!x.group).length}</small></button>`).join('');
 }
 function renderHead(){
   const p = PHASES[phaseIdx];
@@ -987,6 +1086,8 @@ function mapFigOf(id){
   const it = ITEM[id];
   if(!it || !hasMap(it)) return null;
   if(it.loc==='U'){ const f = document.getElementById('upperFig'); return f.hidden ? null : f; }
+  if(it.hloc){ const f = document.getElementById('hallFig'); if(!f.hidden) return f; }
+  if(it.loc && LOC[it.loc]){ const f = document.getElementById('siteFig'); if(!f.hidden) return f; }
   return mainFig();
 }
 function scrollToMap(id){
@@ -1013,16 +1114,31 @@ function scrollItemTop(id){
 window.addEventListener('resize', setPhH);
 // 단계마다 쓰는 배치도: 1층(기본) / 중동관 좌석(map:'hall') / 사전 준비 일정표(map:'cal')
 function renderMaps(){
-  const m = PHASES[phaseIdx].map || 'site';
-  document.getElementById('siteFig').hidden = m!=='site';
-  document.getElementById('hallFig').hidden = m!=='hall';
-  document.getElementById('calFig').hidden  = m!=='cal';
-  if(m==='site') renderSite();
-  if(m==='hall') renderHall();
-  if(m==='cal')  renderCal();
+  const p = PHASES[phaseIdx];
+  const ms = p.maps || [p.map || 'site'];
+  document.getElementById('siteFig').hidden = !ms.includes('site');
+  document.getElementById('hallFig').hidden = !ms.includes('hall');
+  document.getElementById('calFig').hidden  = !ms.includes('cal');
+  document.getElementById('supFig').hidden  = !ms.includes('sup');
+  if(ms.includes('site')) renderSite();
+  if(ms.includes('hall')) renderHall();
+  if(ms.includes('cal'))  renderCal();
+  if(ms.includes('sup'))  renderSupTable();
   renderUpper();
 }
-const mainFig = () => ['siteFig','hallFig','calFig'].map(id=>document.getElementById(id)).find(f=>!f.hidden);
+const mainFig = () => ['calFig','supFig','siteFig','hallFig'].map(id=>document.getElementById(id)).find(f=>!f.hidden);
+// 준비물 표
+function renderSupTable(){
+  const p = PHASES[phaseIdx];
+  let h = `<table class="sup"><thead><tr><th>번</th><th>장소</th><th>준비물</th><th>내용</th><th>담당</th><th>제작·세팅</th></tr></thead><tbody>`;
+  phaseItems(p).forEach(it=>{
+    if(it.group) return;
+    const isSel = sel===it.srcId, me = itemHasPerson(it);
+    const who = itemNames(it).join(', ') || '미정';
+    h += `<tr data-sel="${it.srcId}" data-sup="1" class="${isSel?'sel':''} ${me&&!isSel?'me':''}"><td class="n">${it.num}</td><td class="place">${esc(it.place)}</td><td class="it">${esc(it.item)}</td><td class="ct">${esc(it.detail)}</td><td class="who">${esc(who)}</td><td class="when">${esc(it.time)}</td></tr>`;
+  });
+  document.getElementById('supTable').innerHTML = h + `</tbody></table>`;
+}
 function renderAll(){ renderSteps(); renderHead(); renderMaps(); renderTasks(); renderPeople(); }
 function go(i){
   phaseIdx = Math.max(0, Math.min(PHASES.length-1, i));
@@ -1049,7 +1165,7 @@ document.addEventListener('click', e=>{
   const g = e.target.closest('[data-go]');
   if(g){ go(+g.dataset.go); const it = g.dataset.item; if(it){ select(it, true); scrollItemTop(it); } return; }
   const sb = e.target.closest('[data-sel]');
-  if(sb){ const id = sel===sb.dataset.sel ? null : sb.dataset.sel; select(id, !sb.dataset.cal); if(id && sb.dataset.cal) scrollItemTop(id); return; }
+  if(sb){ const id = sel===sb.dataset.sel ? null : sb.dataset.sel; select(id, !sb.dataset.cal); if(id && (sb.dataset.cal || sb.dataset.sup)) scrollItemTop(id); return; }
   const zb = e.target.closest('[data-zoom]');
   if(zb){ zoomBtn(zb.closest('.zoomctl').dataset.map, zb.dataset.zoom); return; }
   const pp = e.target.closest('[data-person]');
