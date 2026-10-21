@@ -618,9 +618,10 @@ const PHASES = [
 /* ---------- 차량 유도선 (해당 번호를 눌렀을 때만 표시) ---------- */
 const GUIDES = {
   vip: 'M 26 951 L 540 951 L 540 872 L 765 872 L 765 842',   // 정문 → 운동장 위쪽 → 급식실 쪽 주차장
-  carGate:   'M 22 951 H -18 V 735',                      // 정문 앞 → 도로 따라 후문 쪽으로
-  carBack:   'M 22 951 H -18 V 706 H 40 V 738',           // 정문 앞 → 후문 → 후문 주차장
-  carDesian: 'M 22 951 H -18 V 718 H -160',               // 정문 앞 → 후문 맞은편 → 데시앙 아파트
+  // 배열: 첫 선은 화살표, '!'로 시작하는 선은 반대편(도로 위쪽)에서 오는 차량이 합류하는 선(화살표 없음)
+  carGate:   ['M -18 951 V 735'],                                  // 도로(정문 앞) → 후문 쪽으로
+  carBack:   ['M -18 951 V 706 H 40 V 738', '!M -60 670 V 706 H -18'],   // 도로 → 후문 → 후문 주차장 (반대편에서도 합류)
+  carDesian: ['M -18 951 V 718 H -160', '!M -60 670 V 718'],      // 도로 → 후문 맞은편 → 데시앙 아파트 (반대편에서도 합류)
 };
 const GUIDE_NOTE = { vip:'내빈 차량: 정문 → 급식실 쪽 주차장', carGate:'참관자 차량: 정문 → 후문 쪽으로 유도',
   carBack:'참관자 차량: 후문 주차장으로 유도', carDesian:'참관자 차량: 후문 만차 시 데시앙 아파트로 유도' };
@@ -817,7 +818,7 @@ function renderSite(){
   let s = siteBase();
   // 선택한 역할에 유도선이 있으면 표시
   const gItem = sel && ITEM[sel];
-  if(gItem && gItem.guide) s += `<path class="route guide" d="${GUIDES[gItem.guide]}" marker-end="url(#arr)"/>`;
+  if(gItem && gItem.guide) [].concat(GUIDES[gItem.guide]).forEach(d=>{ s += d[0]==='!' ? `<path class="route guide" d="${d.slice(1)}"/>` : `<path class="route guide" d="${d}" marker-end="url(#arr)"/>`; });
   // 유도선이 있는 역할을 고르면 그 유도선만 (참관자 동선은 숨김)
   const shownRoutes = (gItem && gItem.guide) ? [] : (p.routes||[]);
   shownRoutes.forEach(k=>ROUTES[k].paths.forEach(d=>{
